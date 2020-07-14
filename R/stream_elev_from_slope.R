@@ -1,0 +1,23 @@
+#' Title
+#'
+#' @param swdf
+#' @param slope
+#' @param initial_elev
+#'
+#' @return
+#' @export
+#'
+#' @examples
+stream_elev_from_slope <- function(swdf, slope, initial_elev) {
+
+  #-- Calculate a cumulative length (distance from start)
+  swdf$Distance <- cumsum(swdf$Length)
+
+  #-- Calculate upstream coordinate elevation
+  swdf$seg1.elev <- initial_elev - (swdf$Distance - swdf$Length) * slope
+
+  #-- Calculate downstream coordination elevation
+  swdf$seg2.elev <- initial_elev - swdf$Distance * slope
+
+  return(swdf)
+}
