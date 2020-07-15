@@ -39,7 +39,7 @@ write.PBJpackage <- function(swdf, filename, head_interp="GEO", seg_sort=T) {
   writeLines(paste(nrow(swdf)), f)
 
   #-- Write Node Connections
-  writeLines("INTERNAL  1.0  (FREE)  -1  Segment Nodes", f)
+  writeLines("INTERNAL  1    (FREE)  -1  Segment Nodes", f)
   write.table(wdf[,c('Node1','Node2','Node3')], f, row.names = F, col.names = F)
 
   #-- Write Barycentric Weights
