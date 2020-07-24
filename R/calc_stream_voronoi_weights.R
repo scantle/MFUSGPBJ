@@ -1,18 +1,45 @@
 #-------------------------------------------------------------------------------------------------#
-#' Title
+#' Calculate polyline (e.g. stream) barycentric coordinates
 #'
-#' @param stream
-#' @param voronoi
-#' @param triangles
-#' @param addTo
-#' @param geometry
-#' @param cutoff_value
+#' These coordinates are used as "weights" in the PBJ MODFLOW-USG package to interpolate heads and
+#' distribute flows.
 #'
-#' @return
-#' @export
+#' The function can take a while to run
+#'
+#' @param stream sf polyline, "exploded" into segments (see \code{\link{line_explode}})
+#' @param voronoi sf polygon of voronoi tesselation (unstructured model grid). Shapefile ID field
+#' will be used to determine node ID.
+#' @param triangles sf polygon of delaunay triangulation corresponding to voronoi grid.
+#' @param addTo (optional) existing calc_stream_voronoi_weights() output new output should be added
+#' to (False by default)
+#' @param geometry (optional) T/F whether to include sf geometry in output dataframe (default: True)
+#' @param cutoff_value numeric, minimum barcentric coordinate value. Values below will be forced to
+#' zero (1e-8 by default)
+#' @return DataFrame or sf object, if geometry = True. Each row is one segment-triangle overlap,
+#' with six barycentric weights (three for segment end), the three voronoi shape IDs (model nodes)
+#' connected by the triangle, and the segment length in the triangle.
+#'
+#' This the expected input of \code{\link{stream_elev_from_slope}} and
+#' the \code{calc_conductance*} functions (e.g. \code{\link{calc_conductance_modflow}})
+#' @author Leland Scantlebury
+#' @export calc_stream_voronoi_weights
 #'
 #' @examples
-calc_stream_voronoi_weights <- function(stream, voronoi, triangles, addTo=FALSE, geometry=T,
+#' #-- Read in shapefiles
+#' str <- read_sf(system.file("extdata", "MehlandHill2010_stream.shp", package = "MFUSGPBJ"))
+#' tri <- read_sf(system.file("extdata", "720_triangles.shp", package = "MFUSGPBJ"))
+#' vor <- read_sf(system.file("extdata", "720_voronoi.shp", package = "MFUSGPBJ"))
+#'
+#' #-- Explode polyline
+#' str <- line_explode(str)
+#'
+#' #-- Run the function
+#' swdf <- calc_stream_voronoi_weights(stream = str, voronoi = vor, triangles = tri)
+#'
+#' #-- Example of addTo use (more likely run with new stream shapefile)
+#' more_swdf <- calc_stream_voronoi_weights(stream = str, voronoi = vor, triangles = tri,
+#'                                          addTo = swdf)
+calc_stream_voronoi_weights <- function(stream, voronoi, triangles, addTo=NULL, geometry=T,
                                         cutoff_value=1e-8) {
   #-----------------------------------------------------------------------------------------------#
   #-- Get Intersections
@@ -92,19 +119,19 @@ calc_stream_voronoi_weights <- function(stream, voronoi, triangles, addTo=FALSE,
   #-----------------------------------------------------------------------------------------------#
 
   #-----------------------------------------------------------------------------------------------#
-  #-- Handle addTo if needed
-  if (addTo != F) {
-    weights <- rbind(addTo, weights,)
-    #TODO LIkely could use some error handling
-  }
-  #-----------------------------------------------------------------------------------------------#
-
-  #-----------------------------------------------------------------------------------------------#
   #-- Reorder
   weights <- weights[order(weights$Order), ]
   rownames(weights) <- weights$Order
   #-- Drop, since order is now redundant with index
   weights <- weights[, -1]
+  #-----------------------------------------------------------------------------------------------#
+
+  #-----------------------------------------------------------------------------------------------#
+  #-- Handle addTo if needed
+  if (!is.null(addTo)) {
+    weights <- rbind(addTo, weights)
+    #TODO LIkely could use some error handling
+  }
   #-----------------------------------------------------------------------------------------------#
 
   return(weights)

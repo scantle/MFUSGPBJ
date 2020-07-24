@@ -2,18 +2,29 @@
 % Please edit documentation in R/barycentric.R
 \name{geo_to_barycentric_coords}
 \alias{geo_to_barycentric_coords}
-\title{Title}
+\title{Polyline segment & polygon triangle geometries to barycentric coordinates}
 \usage{
 geo_to_barycentric_coords(seg_geo, tri_geo)
 }
 \arguments{
-\item{seg_geo}{}
+\item{seg_geo}{geometry of line object}
 
-\item{tri_geo}{}
+\item{tri_geo}{geometry of polygon triangle}
 }
 \value{
-
+matrix of coordinates, b1, b2, b3
 }
 \description{
-Title
+Polyline segment & polygon triangle geometries to barycentric coordinates
+}
+\examples{
+# Read in shapefiles
+str <- read_sf(system.file("extdata", "MehlandHill2010_stream.shp", package = "MFUSGPBJ"))
+tri <- read_sf(system.file("extdata", "720_triangles.shp", package = "MFUSGPBJ"))
+
+# Run function with one segment, one triangle
+geo_to_barycentric_coords(seg_geo = str[1,]$geometry, tri_geo = tri[120,]$geometry)
+}
+\author{
+Leland Scantlebury
 }

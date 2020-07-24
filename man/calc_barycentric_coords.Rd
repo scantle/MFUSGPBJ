@@ -2,30 +2,40 @@
 % Please edit documentation in R/barycentric.R
 \name{calc_barycentric_coords}
 \alias{calc_barycentric_coords}
-\title{Title}
+\title{Calculate barycentric coordinates at a given point}
 \usage{
 calc_barycentric_coords(x, y, x1, y1, x2, y2, x3, y3)
 }
 \arguments{
-\item{x}{}
+\item{x}{numeric (or array), target x-coordinate}
 
-\item{y}{}
+\item{y}{numeric (or array), target y-coordinate}
 
-\item{x1}{}
+\item{x1}{numeric, triangle corner one x-coordinate}
 
-\item{y1}{}
+\item{y1}{numeric, triangle corner one y-coordinate}
 
-\item{x2}{}
+\item{x2}{numeric, triangle corner two x-coordinate}
 
-\item{y2}{}
+\item{y2}{numeric, triangle corner two y-coordinate}
 
-\item{x3}{}
+\item{x3}{numeric, triangle corner three x-coordinate}
 
-\item{y3}{}
+\item{y3}{numeric, triangle corner three y-coordinate}
 }
 \value{
-
+matrix of coordinates, b1, b2, b3
 }
 \description{
-Title
+Calculate barycentric coordinates at a given point
+}
+\examples{
+calc_barycentric_coords(x = c(523300,523400),
+                        y = c(4925787.45,4925802.08),
+                        x1 = 523232.75, y1 = 4925893,
+                        x2 = 523448.87, y2 = 4925906.09,
+                        x3 = 523353.60, y3 = 4925703.32)
+}
+\author{
+Leland Scantlebury
 }

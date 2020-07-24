@@ -2,16 +2,38 @@
 % Please edit documentation in R/plot.segment_domain.R
 \name{plot.segment_domain}
 \alias{plot.segment_domain}
-\title{Title}
+\title{Create plot of segment
+Useful for evaluating & examining results of \code{\link{calc_stream_voronoi_weights}}}
 \usage{
 \method{plot}{segment_domain}(triangles, voronoi, stream, seg_id, tri_id, trim_seg = T, title = F)
 }
 \arguments{
-\item{title}{}
-}
-\value{
+\item{triangles}{sf polygon of delaunay triangulation corresponding to voronoi grid.}
 
+\item{voronoi}{sf polygon of voronoi tesselation (unstructured model grid).}
+
+\item{stream}{sf polyline, "exploded" into segments (see \code{\link{line_explode}})}
+
+\item{seg_id}{integer, id of stream segment to be highlighted in plot}
+
+\item{tri_id}{integer, id of triangle segment highlighted in plot}
+
+\item{trim_seg}{(optional) whether segment should be trimmed to triangle extent (as is done in
+\code{\link{calc_stream_voronoi_weights}}) Default: True}
+
+\item{title}{(optional) T/F whether a title should be added to the plot identifying
+Triangle/Segment IDs}
 }
 \description{
-Title
+Create plot of segment
+Useful for evaluating & examining results of \code{\link{calc_stream_voronoi_weights}}
+}
+\examples{
+#-- Read in shapefiles
+str <- read_sf(system.file("extdata", "MehlandHill2010_stream.shp", package = "MFUSGPBJ"))
+tri <- read_sf(system.file("extdata", "720_triangles.shp", package = "MFUSGPBJ"))
+vor <- read_sf(system.file("extdata", "720_voronoi.shp", package = "MFUSGPBJ"))
+
+#-- Plot
+plot.segment_domain(tri, vor, str, seg_id = 34, tri_id = 451, title = T)
 }

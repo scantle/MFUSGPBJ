@@ -2,16 +2,64 @@
 % Please edit documentation in R/calc_stream_voronoi_weights.R
 \name{calc_stream_voronoi_weights}
 \alias{calc_stream_voronoi_weights}
-\title{Title}
+\title{Calculate polyline (e.g. stream) barycentric coordinates}
 \usage{
-calc_stream_voronoi_weights(stream, voronoi, triangles, addTo = FALSE)
+calc_stream_voronoi_weights(
+  stream,
+  voronoi,
+  triangles,
+  addTo = NULL,
+  geometry = T,
+  cutoff_value = 1e-08
+)
 }
 \arguments{
-\item{addTo}{}
+\item{stream}{sf polyline, "exploded" into segments (see \code{\link{line_explode}})}
+
+\item{voronoi}{sf polygon of voronoi tesselation (unstructured model grid). Shapefile ID field
+will be used to determine node ID.}
+
+\item{triangles}{sf polygon of delaunay triangulation corresponding to voronoi grid.}
+
+\item{addTo}{(optional) existing calc_stream_voronoi_weights() output new output should be added
+to (False by default)}
+
+\item{geometry}{(optional) T/F whether to include sf geometry in output dataframe (default: True)}
+
+\item{cutoff_value}{numeric, minimum barcentric coordinate value. Values below will be forced to
+zero (1e-8 by default)}
 }
 \value{
+DataFrame or sf object, if geometry = True. Each row is one segment-triangle overlap,
+with six barycentric weights (three for segment end), the three voronoi shape IDs (model nodes)
+connected by the triangle, and the segment length in the triangle.
 
+This the expected input of \code{\link{stream_elev_from_slope}} and
+the \code{calc_conductance*} functions (e.g. \code{\link{calc_conductance_modflow}})
 }
 \description{
-Title
+These coordinates are used as "weights" in the PBJ MODFLOW-USG package to interpolate heads and
+distribute flows.
+}
+\details{
+The function can take a while to run
+}
+\examples{
+#-- Read in shapefiles
+str <- read_sf(system.file("extdata", "MehlandHill2010_stream.shp", package = "MFUSGPBJ"))
+tri <- read_sf(system.file("extdata", "720_triangles.shp", package = "MFUSGPBJ"))
+vor <- read_sf(system.file("extdata", "720_voronoi.shp", package = "MFUSGPBJ"))
+
+#-- Explode polyline
+str <- line_explode(str)
+
+#-- Run the function
+swdf <- calc_stream_voronoi_weights(stream = str, voronoi = vor, triangles = tri)
+
+#-- Example of addTo use (more likely run with new stream shapefile)
+more_swdf <- calc_stream_voronoi_weights(stream = str, voronoi = vor, triangles = tri,
+                                         addTo = swdf)
+}
+\author{
+Leland Scantlebury
 }

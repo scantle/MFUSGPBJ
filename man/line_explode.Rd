@@ -2,16 +2,28 @@
 % Please edit documentation in R/shapefile_utils.R
 \name{line_explode}
 \alias{line_explode}
-\title{Title}
+\title{Convert single polyline into multipolyline segments, based on vertices
+Or "explode" the line, as it is commonly referred to in GIS programs}
 \usage{
 line_explode(polyline)
 }
 \arguments{
-\item{polyline}{}
+\item{polyline}{sf polyline object}
 }
 \value{
-
+sf multipolyline object
 }
 \description{
-Title
+Convert single polyline into multipolyline segments, based on vertices
+Or "explode" the line, as it is commonly referred to in GIS programs
+}
+\examples{
+#-- Read in shapefiles
+str <- read_sf(system.file("extdata", "MehlandHill2010_stream.shp", package = "MFUSGPBJ"))
+
+#-- Explode polyline
+str <- line_explode(str)
+}
+\author{
+Leland Scantlebury
 }
