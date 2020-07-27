@@ -139,15 +139,28 @@ write.PBJpackage <- function(swdf, filename, nSPs, IPBJCB, pbjmode='DRAIN', cond
 
   #-- Write Node Connections
   writeLines("INTERNAL  1    (FREE)  -1  Segment Nodes", f)
-  write.table(wdf[,c('Node1','Node2','Node3')], f, row.names = F, col.names = F)
+  write.table(swdf[,c('Node1','Node2','Node3')], f, row.names = F, col.names = F)
 
   #-- Write Barycentric Weights
   writeLines("INTERNAL  1.0  (FREE)  -1  Node Weights", f)
-  write.table(wdf[,c('seg1.a1','seg1.a2','seg1.a3','seg2.a1','seg2.a2','seg2.a3')], f, row.names = F, col.names = F)
+  write.table(swdf[,c('seg1.a1','seg1.a2','seg1.a3','seg2.a1','seg2.a2','seg2.a3')], f, row.names = F, col.names = F)
 
   #-- Write elevations
   writeLines("INTERNAL  1.0  (FREE)  -1  Segment Start/End Elevations", f)
-  write.table(wdf[,c('seg1.elev','seg2.elev')], f, row.names = F, col.names = F)
+  write.table(swdf[,c('seg1.elev','seg2.elev')], f, row.names = F, col.names = F)
+
+  #-- Write Lengths
+  if (condtype != 'CONDUCTANCE') {
+    writeLines("INTERNAL  1.0  (FREE)  -1  Segment Lengths", f)
+    write.table(swdf[,'Length'], f, row.names = F, col.names = F)
+  }
+
+  #-- Write Widths
+  #TODO Implement this
+  if (condtype == 'UNITCOND') {
+    writeLines("INTERNAL  1.0  (FREE)  -1  Segment Widths", f)
+    write.table(swdf[,c('seg1.width','seg2.width')], f, row.names = F, col.names = F)
+  }
 
   #-- Write time-variant parameters
   for (sp in 1:length(nSPs)) {
