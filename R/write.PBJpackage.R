@@ -10,9 +10,9 @@
 #' @param nSPs integer, number of stress periods in simulation
 #' @param IPBJCB integer, CBB flow flag. See details (or PBJ package manual) for more info
 #' @param pbjmode character, PBJ package mode. See details (or PBJ package manual) for more info.
-#'   One of "HEADSPEC", "DRAIN", or "EXTSTAGE"
+#'   One of "HEADSPEC", "DRAIN", or "EXTSTAGE". Default: 'DRAIN'
 #' @param condtype character, conductance type to be used. See details (or PBJ package manual) for more info
-#'   One of "CONDUCTANCE", "UNITCOND", or "LEAKCOEF".
+#'   One of "CONDUCTANCE", "UNITCOND", or "LEAKCOEF". Default: 'UNITCOND'.
 #' @param seg_sort T/F (optional) whether swdf should be sorted by segment prior to output (default: True)
 #' @param SPwarnings T/F (optional) turn on (True) or off (False) warnings about reused or missing SP data
 #'
@@ -84,13 +84,13 @@ write.PBJpackage <- function(swdf, filename, nSPs, IPBJCB, pbjmode='DRAIN', cond
   }
 
   #-- Check settings strings are valid
-  if (!is.numeric('IPBJCB')) {
-    stop("Non-numeric CBC flow flag (IPBJCB). Must be a unit number, zero, or negative integer")
+  if (!all.equal(IPBJCB, as.integer(IPBJCB))) {
+    stop("Non-integer CBC flow flag (IPBJCB). Must be a unit number, zero, or negative integer")
   }
-  if (!(pbjmode %IN% c("HEADSPEC", "DRAIN", "EXTSTAGE"))) {
+  if (!(pbjmode %in% c("HEADSPEC", "DRAIN", "EXTSTAGE"))) {
     stop("Invalid PBJ mode (pbjmode).")
   }
-  if (!(condtype %IN% c("CONDUCTANCE", "UNITCOND", "LEAKCOEF"))) {
+  if (!(condtype %in% c("CONDUCTANCE", "UNITCOND", "LEAKCOEF"))) {
     stop("Invalid conductance type (condtype).")
   }
 
@@ -152,33 +152,33 @@ write.PBJpackage <- function(swdf, filename, nSPs, IPBJCB, pbjmode='DRAIN', cond
   #-- Write Lengths
   if (condtype != 'CONDUCTANCE') {
     writeLines("INTERNAL  1.0  (FREE)  -1  Segment Lengths", f)
-    write.table(swdf[,'Length'], f, row.names = F, col.names = F)
+    write(swdf$Length, f, ncolumns = 10)
   }
 
   #-- Write Widths
   #TODO Implement this
-  if (condtype == 'UNITCOND') {
+  if (condtype == 'LEAKCOEF') {
     writeLines("INTERNAL  1.0  (FREE)  -1  Segment Widths", f)
     write.table(swdf[,c('seg1.width','seg2.width')], f, row.names = F, col.names = F)
   }
 
   #-- Write time-variant parameters
-  for (sp in 1:length(nSPs)) {
-    if (pbjmode != "HEADSPEC") {
-      pbj_write_sp_values(swdf, sp, 'Head', 'Specified Heads')
+  for (sp in 1:nSPs) {
+    if (pbjmode == "HEADSPEC") {
+      pbj_write_sp_values(f, swdf, sp, 'Head', 'Specified Heads', SPwarnings)
     } else {
       #-- Stage
       if (pbjmode == 'EXTSTAGE') {
-        pbj_write_sp_values(swdf, sp, 'Stage', 'External Stage')
+        pbj_write_sp_values(f, swdf, sp, 'Stage', 'External Stage', SPwarnings)
       }
 
       #-- Conductances
       if (condtype == "CONDUCTANCE") {
-        pbj_write_sp_values(swdf, sp, c('seg1.cond','seg2.cond'), 'Conductances')
+        pbj_write_sp_values(f, swdf, sp, c('seg1.cond','seg2.cond'), 'Conductances', SPwarnings)
       } else if (condtype == 'UNITCOND') {
-        pbj_write_sp_values(swdf, sp, c('seg1.cond','seg2.cond'), 'Unit Length Conductances')
+        pbj_write_sp_values(f, swdf, sp, c('seg1.cond','seg2.cond'), 'Unit Length Conductances', SPwarnings)
       } else if (condtype == 'LEAKCOEF') {
-        pbj_write_sp_values(swdf, sp, c('seg1.cond','seg2.cond'), 'Leakance Coefficients')
+        pbj_write_sp_values(f, swdf, sp, c('seg1.cond','seg2.cond'), 'Leakance Coefficients', SPwarnings)
       }
 
       # target_col <- paste0('Condutance',sp)
@@ -201,20 +201,23 @@ write.PBJpackage <- function(swdf, filename, nSPs, IPBJCB, pbjmode='DRAIN', cond
   close(f)
 }
 
-pbj_write_sp_values <- function(swdf, sp, colstr, valuestr) {
+pbj_write_sp_values <- function(f, swdf, sp, colstr, valuestr, SPwarnings) {
 
   target_col <- paste0(colstr, sp)
 
   if (all(target_col %in% colnames(swdf))) {
-    nsegments <- nrow(wdf[!is.na(swdf[target_col]),])
+    nsegments <- nrow(wdf[all(!is.na(swdf[target_col])),])
     writeLines(paste(nsegments, '   ', valuestr, 'Stress Period',sp), f)
+
+    #-- Write Values
+    write.table(wdf[all(!is.na(wdf[target_col])), target_col], f, row.names = T, col.names = F, quote = FALSE)
 
   } else {
 
     #-- Reusing
+    if (SPwarnings) {
+      warning(paste0('No data for ',valuestr,' in SP ',sp,'. Preceding SP values will be reused.'))
+    }
     writeLines(paste(-1, '   ', valuestr, 'Stress Period',sp), f)
   }
-
-  #-- Write Values
-  write.table(wdf[!is.na(wdf[target_col]), target_col], f, row.names = T, col.names = F)
 }

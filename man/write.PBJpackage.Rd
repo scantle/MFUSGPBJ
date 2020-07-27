@@ -30,10 +30,10 @@ unless constant. See details for more info.}
 \item{IPBJCB}{integer, CBB flow flag. See details (or PBJ package manual) for more info}
 
 \item{pbjmode}{character, PBJ package mode. See details (or PBJ package manual) for more info.
-One of "HEADSPEC", "DRAIN", or "EXTSTAGE"}
+One of "HEADSPEC", "DRAIN", or "EXTSTAGE". Default: 'DRAIN'}
 
 \item{condtype}{character, conductance type to be used. See details (or PBJ package manual) for more info
-One of "CONDUCTANCE", "UNITCOND", or "LEAKCOEF".}
+One of "CONDUCTANCE", "UNITCOND", or "LEAKCOEF". Default: 'UNITCOND'.}
 
 \item{seg_sort}{T/F (optional) whether swdf should be sorted by segment prior to output (default: True)}
 
