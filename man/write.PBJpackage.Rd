@@ -4,19 +4,76 @@
 \alias{write.PBJpackage}
 \title{Writes Modflow-USG Polyline Boundary Junction Package}
 \usage{
-write.PBJpackage(swdf, filename, head_interp = "GEO", seg_sort = T)
+write.PBJpackage(
+  swdf,
+  filename,
+  nSPs,
+  IPBJCB,
+  pbjmode = "DRAIN",
+  condtype = "UNITCOND",
+  seg_sort = T,
+  SPwarnings = T
+)
 }
 \arguments{
 \item{swdf}{DataFrame/Geometry of node barycentric coordinates as returned by
-\code{\link{calc_stream_voronoi_weights}} with additional 'Conductance' and elevation
-('seg1.elev' and 'seg2.elev') columns required}
+\code{\link{calc_stream_voronoi_weights}} with conductances and elevation columns required for segment
+start/ends (e.g. 'seg2.elev' & 'seg1.elev'; 'seg1.cond[sp]' and'seg2.cond[sp]')
+Conductance columns are used regardless of condtype (e.g. Leakance Coefficients for stress periods should
+be passed through Conductance columns). Stress period numbers should suffix all time varying column numbers,
+unless constant. See details for more info.}
 
 \item{filename}{character, name/location of output file}
 
+\item{nSPs}{integer, number of stress periods in simulation}
+
+\item{IPBJCB}{integer, CBB flow flag. See details (or PBJ package manual) for more info}
+
+\item{pbjmode}{character, PBJ package mode. See details (or PBJ package manual) for more info.
+One of "HEADSPEC", "DRAIN", or "EXTSTAGE"}
+
+\item{condtype}{character, conductance type to be used. See details (or PBJ package manual) for more info
+One of "CONDUCTANCE", "UNITCOND", or "LEAKCOEF".}
+
 \item{seg_sort}{T/F (optional) whether swdf should be sorted by segment prior to output (default: True)}
+
+\item{SPwarnings}{T/F (optional) turn on (True) or off (False) warnings about reused or missing SP data}
 }
 \description{
 Writes Modflow-USG Polyline Boundary Junction Package
+}
+\details{
+Attention is required in the naming of the time-varying columns in relation to stress periods. Conductance,
+'Head', and 'Stage' columns must be passed with specific stress period numbers after their name
+(e.g. 'Head5'). Missing stress periods (e.g. 'Stage4' followed by 'Stage6') are assumed to mean the
+previous stress period value should be reused.
+
+Conductances (leakance coefficents, etc) are defined at both the segment start and end (like elevations)
+by the columns 'seg1.cond[sp]' and'seg2.cond[sp]'.
+
+NAs in any time-variant column will be treated that segment is not active in the stress period. Consistency
+with other SP parameters is NOT be checked. When using the external head-dependent boundary option (EXTSTAGE)
+this means you'll want to make sure Stage and Conductance are inactive (NAs) for the same stress periods.
+
+If IPBJCB is > 0, cell-by-cell flow terms will be written to this unit number when “SAVE BUDGET” or a
+non-zero value for ICBCFL is specified in the output control
+If IPBJCB = 0, cell-by-cell flow terms are not written
+If IPBJCB < 0, segment leakance for each segment will be written to the listing file when “SAVE BUDGET”
+or a non-zero value for ICBCFL is specified in the output control
+
+\strong{Mode} specifies if the segments should act as a:
+\itemize{
+\item HEADSPEC: specified head boundary
+\item DRAIN: drain (head-dependent, active only above elevation)
+\item EXTSTAGE: external head-dependent flux boundary (e.g. stream elevation time series)
+}
+
+\strong{Condtype} (conductance type) specifies if the stress period segment conductances are input as:
+\itemize{
+\item CONDUCTANCE: conductances [L2/T]
+\item UNITCOND: conductances per unit length [L/T]
+\item LEAKCOEF: leakance coefficients (1/T).}
+The conductance type is ignored (not needed) if the mode is set to head-specified.
 }
 \examples{
 write.PBJpackage
@@ -36,5 +93,5 @@ swdf <- stream_elev_from_slope(swdf = swdf, slope = 0.0015, initial_elev = 50)
 swdf$Conductance <- calc_conductance_modflow(swdf, k_streambed = 1,
                                              str_width = 1, thickness = 0.5)
 #-- Write package file
-write.PBJpackage(swdf, filename = paste0(tempdir(),'/model720.pbj'))
+write.PBJpackage(swdf, filename = paste0(tempdir(),'/model720.pbj'), nSPs=2, IPBJCB=50)
 }
