@@ -15,6 +15,7 @@
 #'   One of "CONDUCTANCE", "UNITCOND", or "LEAKCOEF". Default: 'UNITCOND'.
 #' @param seg_sort T/F (optional) whether swdf should be sorted by segment prior to output (default: True)
 #' @param SPwarnings T/F (optional) turn on (True) or off (False) warnings about reused or missing SP data
+#' @param allowconst T/F (optional) allow SP arrays to be written using the CONSTANT flag (default: True)
 #'
 #' @details
 #' Attention is required in the naming of the time-varying columns in relation to stress periods. Conductance,
@@ -70,7 +71,7 @@
 #' #-- Write package file
 #' write.PBJpackage(swdf, filename = paste0(tempdir(),'/model720.pbj'), nSPs=2, IPBJCB=50)
 write.PBJpackage <- function(swdf, filename, nSPs, IPBJCB, pbjmode='DRAIN', condtype='UNITCOND',
-                             seg_sort=T, SPwarnings=T) {
+                             seg_sort=T, SPwarnings=T, allowconst=T) {
 
   #-----------------------------------------------------------------------------------------------#
   #-- INPUT ERROR HANDLING
@@ -143,7 +144,8 @@ write.PBJpackage <- function(swdf, filename, nSPs, IPBJCB, pbjmode='DRAIN', cond
 
   #-- Write Barycentric Weights
   writeLines("INTERNAL  1.0  (FREE)  -1  Node Weights", f)
-  write.table(swdf[,c('seg1.a1','seg1.a2','seg1.a3','seg2.a1','seg2.a2','seg2.a3')], f, row.names = F, col.names = F)
+  write.table(format(swdf[,c('seg1.a1','seg1.a2','seg1.a3','seg2.a1','seg2.a2','seg2.a3')], digits=10),
+              f, row.names = F, col.names = F, quote = F)
 
   #-- Write elevations
   writeLines("INTERNAL  1.0  (FREE)  -1  Segment Start/End Elevations", f)
@@ -165,20 +167,20 @@ write.PBJpackage <- function(swdf, filename, nSPs, IPBJCB, pbjmode='DRAIN', cond
   #-- Write time-variant parameters
   for (sp in 1:nSPs) {
     if (pbjmode == "HEADSPEC") {
-      pbj_write_sp_values(f, swdf, sp, 'Head', 'Specified Heads', SPwarnings)
+      pbj_write_sp_values(f, swdf, sp, 'Head', 'Specified Heads', SPwarnings, allowconst)
     } else {
       #-- Stage
       if (pbjmode == 'EXTSTAGE') {
-        pbj_write_sp_values(f, swdf, sp, 'Stage', 'External Stage', SPwarnings)
+        pbj_write_sp_values(f, swdf, sp, 'Stage', 'External Stage', SPwarnings, allowconst)
       }
 
       #-- Conductances
       if (condtype == "CONDUCTANCE") {
-        pbj_write_sp_values(f, swdf, sp, c('seg1.cond','seg2.cond'), 'Conductances', SPwarnings)
+        pbj_write_sp_values(f, swdf, sp, c('seg1.cond','seg2.cond'), 'Conductances', SPwarnings, allowconst)
       } else if (condtype == 'UNITCOND') {
-        pbj_write_sp_values(f, swdf, sp, c('seg1.cond','seg2.cond'), 'Unit Length Conductances', SPwarnings)
+        pbj_write_sp_values(f, swdf, sp, c('seg1.cond','seg2.cond'), 'Unit Length Conductances', SPwarnings, allowconst)
       } else if (condtype == 'LEAKCOEF') {
-        pbj_write_sp_values(f, swdf, sp, c('seg1.cond','seg2.cond'), 'Leakance Coefficients', SPwarnings)
+        pbj_write_sp_values(f, swdf, sp, c('seg1.cond','seg2.cond'), 'Leakance Coefficients', SPwarnings, allowconst)
       }
 
       # target_col <- paste0('Condutance',sp)
@@ -201,7 +203,7 @@ write.PBJpackage <- function(swdf, filename, nSPs, IPBJCB, pbjmode='DRAIN', cond
   close(f)
 }
 
-pbj_write_sp_values <- function(f, swdf, sp, colstr, valuestr, SPwarnings) {
+pbj_write_sp_values <- function(f, swdf, sp, colstr, valuestr, SPwarnings, allowconst) {
 
   target_col <- paste0(colstr, sp)
 
@@ -209,8 +211,38 @@ pbj_write_sp_values <- function(f, swdf, sp, colstr, valuestr, SPwarnings) {
     nsegments <- nrow(wdf[all(!is.na(swdf[target_col])),])
     writeLines(paste(nsegments, '   ', valuestr, 'Stress Period',sp), f)
 
-    #-- Write Values
-    write.table(wdf[all(!is.na(wdf[target_col])), target_col], f, row.names = T, col.names = F, quote = FALSE)
+    #-- Check if allowed to write as constant, check if constant
+    #-- This is so messy - almost needs to be it's own function
+    is_const <- T
+    const_vals <- c()
+    if (allowconst) {
+      if (length(target_col)==1) {
+        if (nrow(unique(swdf[target_col])) != 1) {
+          is_const <- F
+        } else {
+          const_vals <- c(const_vals, unique(swdf[[target_col]]))
+        }
+      } else {
+        for (i in 1:length(target_col)) {
+          if (nrow(unique(swdf[target_col[i]])) != 1) {
+            is_const <- F
+            break
+          } else {
+            const_vals <- c(const_vals, unique(swdf[[target_col[i]]]))
+          }
+        }
+      }
+      #-- If constant
+      if (is_const) {
+        writeLines(paste('CONSTANT ', paste(format(const_vals, nsmall=4), collapse = ' ')), f)
+      }
+    } else {is_const <- F}
+
+    if (is_const == F) {
+      #-- Write Values as table, one segment per line
+      write.table(format(wdf[all(!is.na(wdf[target_col])), target_col], nsmall=4),
+                  f, row.names = T, col.names = F, quote = FALSE)
+    }
 
   } else {
 
