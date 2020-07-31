@@ -30,3 +30,18 @@ line_explode <- function(polyline) {
 }
 #-------------------------------------------------------------------------------------------------#
 
+# Very briefly modificied from Spacedman's solution on StackExchange
+# See: https://gis.stackexchange.com/questions/295806/r-turn-off-automatic-ordering-of-linestrings-when-applying-sfst-intersection
+reorder_segments <- function(src, parts){
+
+  joints = st_intersection(parts)
+  joints = joints[st_is(joints,"POINT"),]
+  jgraph = igraph::graph_from_edgelist(do.call(rbind, joints$origins), directed=FALSE)
+
+  ends = which(igraph::degree(jgraph) == 1)
+
+  sps = igraph::shortest_paths(jgraph, ends[1], ends[2])
+
+  path = sps$vpath[[1]]
+  return(parts[as.numeric(path),])
+}

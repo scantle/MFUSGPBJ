@@ -13,8 +13,13 @@
 #' @param addTo (optional) existing calc_stream_voronoi_weights() output new output should be added
 #' to (False by default)
 #' @param geometry (optional) T/F whether to include sf geometry in output dataframe (default: True)
+#' @param correct_seg_order (optional) T/F to re-order the line segments after finding overlaps with
+#' the triangle grid. Will crash if you have multiple seperate lines (e.g. two streams). (default:
+#' True)
 #' @param cutoff_value numeric, minimum barcentric coordinate value. Values below will be forced to
-#' zero (1e-8 by default)
+#' zero (1e-7 by default)
+#' @param seg_min_length minimum length of segment to include in calculation (default 1e-7).
+#' Generally just to weed out numerical errors.
 #' @return DataFrame or sf object, if geometry = True. Each row is one segment-triangle overlap,
 #' with six barycentric weights (three for segment end), the three voronoi shape IDs (model nodes)
 #' connected by the triangle, and the segment length in the triangle.
@@ -40,14 +45,24 @@
 #' more_swdf <- calc_stream_voronoi_weights(stream = str, voronoi = vor, triangles = tri,
 #'                                          addTo = swdf)
 calc_stream_voronoi_weights <- function(stream, voronoi, triangles, addTo=NULL, geometry=T,
-                                        cutoff_value=1e-8) {
+                                        correct_seg_order=T,
+                                        cutoff_value=1e-7, seg_min_length=1e-7) {
   #-----------------------------------------------------------------------------------------------#
   #-- Get Intersections
   st_agr(triangles) <- 'constant'  # Silence useless spatial consistency error
   st_agr(stream)    <- 'constant'
   tri_stream <- st_intersection(triangles, stream)
 
-  #-- Assumption: st_intersection preserves order (and stream order was correct originally)
+  #-- Remove segments below length threshold
+  tri_stream <- tri_stream[st_length(tri_stream) > seg_min_length,]
+
+  #-- st_intersection can mess up segment order - it uses the triangle ID # to determine the order
+  #-- This correction won't work for multiple streams - they must be sequential
+  #TODO add support for multiple seperate lines (e.g., multiple streams)
+  if (correct_seg_order) {
+    tri_stream <- reorder_segments(stream, tri_stream)
+  }
+
   tri_stream$order <- 1:nrow(tri_stream)
   #-----------------------------------------------------------------------------------------------#
 

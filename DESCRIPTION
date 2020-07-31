@@ -11,4 +11,5 @@ LazyData: true
 RoxygenNote: 7.1.0
 Depends:
   R (>= 3.3.0),
-  sf
+  sf,
+  igraph

@@ -10,7 +10,9 @@ calc_stream_voronoi_weights(
   triangles,
   addTo = NULL,
   geometry = T,
-  cutoff_value = 1e-08
+  correct_seg_order = T,
+  cutoff_value = 1e-07,
+  seg_min_length = 1e-07
 )
 }
 \arguments{
@@ -26,8 +28,15 @@ to (False by default)}
 
 \item{geometry}{(optional) T/F whether to include sf geometry in output dataframe (default: True)}
 
+\item{correct_seg_order}{(optional) T/F to re-order the line segments after finding overlaps with
+the triangle grid. Will crash if you have multiple seperate lines (e.g. two streams). (default:
+True)}
+
 \item{cutoff_value}{numeric, minimum barcentric coordinate value. Values below will be forced to
-zero (1e-8 by default)}
+zero (1e-7 by default)}
+
+\item{seg_min_length}{minimum length of segment to include in calculation (default 1e-7).
+Generally just to weed out numerical errors.}
 }
 \value{
 DataFrame or sf object, if geometry = True. Each row is one segment-triangle overlap,
