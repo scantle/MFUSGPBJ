@@ -12,7 +12,7 @@
 #' @param title (optional) T/F whether a title should be added to the plot identifying
 #' Triangle/Segment IDs
 #'
-#' @export
+#' @export plot.segment_domain
 #'
 #' @examples
 #' #-- Read in shapefiles
