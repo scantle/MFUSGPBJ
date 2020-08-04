@@ -35,7 +35,7 @@ True)}
 \item{cutoff_value}{numeric, minimum barcentric coordinate value. Values below will be forced to
 zero (1e-7 by default)}
 
-\item{seg_min_length}{minimum length of segment to include in calculation (default 1e-7).
+\item{seg_min_length}{numeric, minimum length of segment to include in calculation (default 1e-7).
 Generally just to weed out numerical errors.}
 }
 \value{

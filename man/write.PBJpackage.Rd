@@ -93,8 +93,10 @@ swdf <- calc_stream_voronoi_weights(stream = str, voronoi = vor, triangles = tri
 swdf <- stream_elev_from_slope(swdf = swdf, slope = 0.0015, initial_elev = 50)
 
 #-- Calculate conductances
-swdf$Conductance <- calc_conductance_modflow(swdf, k_streambed = 1,
-                                             str_width = 1, thickness = 0.5)
+swdf$seg1.cond1 <- calc_conductance_modflow(swdf, k_streambed = 1,
+                                            str_width = 1, thickness = 0.5)
+swdf$seg2.cond1 <- calc_conductance_modflow(swdf, k_streambed = 1,
+                                            str_width = 1, thickness = 0.5)
 #-- Write package file
 write.PBJpackage(swdf, filename = paste0(tempdir(),'/model720.pbj'), nSPs=2, IPBJCB=50)
 }

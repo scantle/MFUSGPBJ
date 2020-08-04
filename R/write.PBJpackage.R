@@ -66,8 +66,10 @@
 #' swdf <- stream_elev_from_slope(swdf = swdf, slope = 0.0015, initial_elev = 50)
 #'
 #' #-- Calculate conductances
-#' swdf$Conductance <- calc_conductance_modflow(swdf, k_streambed = 1,
-#'                                              str_width = 1, thickness = 0.5)
+#' swdf$seg1.cond1 <- calc_conductance_modflow(swdf, k_streambed = 1,
+#'                                             str_width = 1, thickness = 0.5)
+#' swdf$seg2.cond1 <- calc_conductance_modflow(swdf, k_streambed = 1,
+#'                                             str_width = 1, thickness = 0.5)
 #' #-- Write package file
 #' write.PBJpackage(swdf, filename = paste0(tempdir(),'/model720.pbj'), nSPs=2, IPBJCB=50)
 write.PBJpackage <- function(swdf, filename, nSPs, IPBJCB, pbjmode='DRAIN', condtype='UNITCOND',
@@ -182,18 +184,6 @@ write.PBJpackage <- function(swdf, filename, nSPs, IPBJCB, pbjmode='DRAIN', cond
       } else if (condtype == 'LEAKCOEF') {
         pbj_write_sp_values(f, swdf, sp, c('seg1.cond','seg2.cond'), 'Leakance Coefficients', SPwarnings, allowconst)
       }
-
-      # target_col <- paste0('Condutance',sp)
-      # if ((target_col %in% colnames(swdf)) {
-      #   nsegments <- nrow(wdf[!is.na(wdf[target_col]),])
-      #
-      #   if (condtype == "CONDUCTANCE") {
-      #     writeLines(paste(nsegments '    Conductance Stress Period',sp), f)
-      #   } else if (condtype == "UNITCOND") {
-      #     writeLines(paste(nsegments '    Conductance Stress Period',sp), f)
-      #   }
-      #   write.table(wdf[!is.na(wdf[target_col]), target_col], f, row.names = T, col.names = F)
-      # }
     }
   }
 
@@ -208,7 +198,7 @@ pbj_write_sp_values <- function(f, swdf, sp, colstr, valuestr, SPwarnings, allow
   target_col <- paste0(colstr, sp)
 
   if (all(target_col %in% colnames(swdf))) {
-    nsegments <- nrow(wdf[all(!is.na(swdf[target_col])),])
+    nsegments <- nrow(swdf[all(!is.na(swdf[target_col])),])
     writeLines(paste(nsegments, '   ', valuestr, 'Stress Period',sp), f)
 
     #-- Check if allowed to write as constant, check if constant
@@ -240,7 +230,7 @@ pbj_write_sp_values <- function(f, swdf, sp, colstr, valuestr, SPwarnings, allow
 
     if (is_const == F) {
       #-- Write Values as table, one segment per line
-      write.table(format(wdf[all(!is.na(wdf[target_col])), target_col], nsmall=4),
+      write.table(format(swdf[all(!is.na(swdf[target_col])), target_col], nsmall=4),
                   f, row.names = T, col.names = F, quote = FALSE)
     }
 

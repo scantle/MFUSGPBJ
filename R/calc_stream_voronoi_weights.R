@@ -18,7 +18,7 @@
 #' True)
 #' @param cutoff_value numeric, minimum barcentric coordinate value. Values below will be forced to
 #' zero (1e-7 by default)
-#' @param seg_min_length minimum length of segment to include in calculation (default 1e-7).
+#' @param seg_min_length numeric, minimum length of segment to include in calculation (default 1e-7).
 #' Generally just to weed out numerical errors.
 #' @return DataFrame or sf object, if geometry = True. Each row is one segment-triangle overlap,
 #' with six barycentric weights (three for segment end), the three voronoi shape IDs (model nodes)
