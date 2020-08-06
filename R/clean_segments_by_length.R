@@ -81,7 +81,7 @@ clean_segments_by_length <- function(swdf, min_seg_length=1e-4, forward_add=T, v
       swdf[iseg + nodedir,]$geometry <- newline
 
       #-- Correct Length
-      swdf[iseg + nodedir, 'Length'] <- st_length(swdf[iseg + nodedir,]$geometry)
+      swdf[iseg + nodedir, 'Length'] <- as.numeric(st_length(swdf[iseg + nodedir,]$geometry))
     } else {
       stop(paste('Segment', iseg, 'does not intersect following and/or preceding segment. Are segments out of order?'))
     }

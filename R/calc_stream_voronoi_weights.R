@@ -54,7 +54,7 @@ calc_stream_voronoi_weights <- function(stream, voronoi, triangles, addTo=NULL, 
   tri_stream <- st_intersection(triangles, stream)
 
   #-- Remove segments below length threshold
-  tri_stream <- tri_stream[st_length(tri_stream) > seg_min_length,]
+  tri_stream <- tri_stream[as.numeric(st_length(tri_stream)) > seg_min_length,]
 
   #-- st_intersection can mess up segment order - it uses the triangle ID # to determine the order
   #-- This correction won't work for multiple streams - they must be sequential
