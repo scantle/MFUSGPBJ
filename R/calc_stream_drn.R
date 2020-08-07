@@ -18,16 +18,16 @@
 #'
 #' @examples
 #' #-- Read in shapefiles
-#' str <- read_sf(system.file("extdata", "straight_river.shp", package = "MFUSGPBJ"))
+#' stream <- read_sf(system.file("extdata", "straight_river.shp", package = "MFUSGPBJ"))
 #' tri <- read_sf(system.file("extdata", "straight_triangles.shp", package = "MFUSGPBJ"))
 #' vor <- read_sf(system.file("extdata", "straight_voronoi.shp", package = "MFUSGPBJ"))
 #'
 #' #-- Explode polyline
-#' str <- line_explode(str)
+#' stream <- line_explode(stream)
 #'
 #' #-- Create DRNDF
-#' drndf <- calc_stream_drn(stream = str, voronoi = vor)
-calc_stream_drn <- function(stream, voronoi, method='node', seg_min_length=1e-7) {
+#' drndf <- calc_stream_drn(stream = stream, voronoi = vor)
+calc_stream_drn <- function(stream, voronoi, method='node', correct_seg_order=T, seg_min_length=1e-7) {
 
   st_agr(voronoi) <- 'constant'  # Silence useless spatial consistency error
   st_agr(stream)  <- 'constant'
@@ -36,10 +36,17 @@ calc_stream_drn <- function(stream, voronoi, method='node', seg_min_length=1e-7)
     # Get overlap by cell
     vor_stream <- st_intersection(voronoi,stream)
 
+    #-- st_intersection can mess up segment order - it uses the triangle ID # to determine the order
+    #-- This correction won't work for multiple streams - they must be sequential
+    #TODO add support for multiple seperate lines (e.g., multiple streams)
+    if (correct_seg_order) {
+      vor_stream <- reorder_segments(stream, vor_stream)
+    }
+
     # Coerce into small DF (to be comparable to output of calc_stream_voronoi_weights)
     drndf <- data.frame('Node' = vor_stream$ID,
                         'Segment' = vor_stream$ID.1,
-                        'Length' = st_length(vor_stream),
+                        'Length' = as.numeric(st_length(vor_stream)),
                         'geometry' = vor_stream$geometry)
   } else {
     stop('Unsupported or unimplemented method')

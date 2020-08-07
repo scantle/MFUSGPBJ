@@ -23,15 +23,15 @@ Writes Modflow-USG Drain Package
 }
 \examples{
 #-- Read in shapefiles
-str <- read_sf(system.file("extdata", "straight_river.shp", package = "MFUSGPBJ"))
+stream <- read_sf(system.file("extdata", "straight_river.shp", package = "MFUSGPBJ"))
 tri <- read_sf(system.file("extdata", "straight_triangles.shp", package = "MFUSGPBJ"))
 vor <- read_sf(system.file("extdata", "straight_voronoi.shp", package = "MFUSGPBJ"))
 
 #-- Explode polyline
-str <- line_explode(str)
+stream <- line_explode(stream)
 
 #-- Create DRNDF
-drndf <- calc_stream_drn(stream = str, voronoi = vor)
+drndf <- calc_stream_drn(stream = stream, voronoi = vor)
 
 #-- Add conductance
 drndf$cond1 <- calc_conductance_modflow(drndf, k_streambed = 1,
@@ -40,7 +40,7 @@ drndf$cond1 <- calc_conductance_modflow(drndf, k_streambed = 1,
 drndf$elev1 <- 90.0
 
 #-- Write file
-write.DRNpackage(drndf, filename = paste0(tempdir(),'/straight_model.pbj'), nSPs=2, IPBJCB=50)
+write.DRNpackage(drndf, filename = paste0(tempdir(),'/straight_model.drn'), nSPs=2, IPBJCB=50)
 }
 \seealso{
 \code{\link{calc_stream_drn}} \code{\link{write.PBJpackage}}

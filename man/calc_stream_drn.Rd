@@ -4,7 +4,13 @@
 \alias{calc_stream_drn}
 \title{Calculate polyline (e.g. stream) drain locations}
 \usage{
-calc_stream_drn(stream, voronoi, method = "node", seg_min_length = 1e-07)
+calc_stream_drn(
+  stream,
+  voronoi,
+  method = "node",
+  correct_seg_order = T,
+  seg_min_length = 1e-07
+)
 }
 \arguments{
 \item{stream}{sf polyline, "exploded" into segments (see \code{\link{line_explode}})}
@@ -27,15 +33,15 @@ PBJ package, given the same grid and stream.
 }
 \examples{
 #-- Read in shapefiles
-str <- read_sf(system.file("extdata", "straight_river.shp", package = "MFUSGPBJ"))
+stream <- read_sf(system.file("extdata", "straight_river.shp", package = "MFUSGPBJ"))
 tri <- read_sf(system.file("extdata", "straight_triangles.shp", package = "MFUSGPBJ"))
 vor <- read_sf(system.file("extdata", "straight_voronoi.shp", package = "MFUSGPBJ"))
 
 #-- Explode polyline
-str <- line_explode(str)
+stream <- line_explode(stream)
 
 #-- Create DRNDF
-drndf <- calc_stream_drn(stream = str, voronoi = vor)
+drndf <- calc_stream_drn(stream = stream, voronoi = vor)
 }
 \seealso{
 \code{\link{write.DRNpackage}}
