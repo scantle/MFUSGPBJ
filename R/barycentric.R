@@ -30,27 +30,32 @@ calc_barycentric_coords <- function(x, y, x1, y1, x2, y2, x3, y3) {
 }
 
 #-------------------------------------------------------------------------------------------------#
-#' Calculate barycentric coordinates at a given point
+#' Calculate barycentric coordinates at given line start/end points
+#' Vectorized function to get barycentric coodinates for segment start/end points for all triangles
 #'
-#' @param x numeric (or array), target x-coordinate
-#' @param y numeric (or array), target y-coordinate
-#' @param x1 numeric, triangle corner one x-coordinate
-#' @param y1 numeric, triangle corner one y-coordinate
-#' @param x2 numeric, triangle corner two x-coordinate
-#' @param y2 numeric, triangle corner two y-coordinate
-#' @param x3 numeric, triangle corner three x-coordinate
-#' @param y3 numeric, triangle corner three y-coordinate
+#' @param lx1 numeric (or array), line first x-coordinate
+#' @param ly1 numeric (or array), line first y-coordinate
+#' @param lx2 numeric (or array), line second x-coordinate
+#' @param ly2 numeric (or array), line second y-coordinate
+#' @param x1 numeric (or array), triangle corner one x-coordinate
+#' @param y1 numeric (or array), triangle corner one y-coordinate
+#' @param x2 numeric (or array), triangle corner two x-coordinate
+#' @param y2 numeric (or array), triangle corner two y-coordinate
+#' @param x3 numeric (or array), triangle corner three x-coordinate
+#' @param y3 numeric (or array), triangle corner three y-coordinate
 #'
-#' @return matrix of coordinates, b1, b2, b3
+#' @return matrix of barycentric coordinates for seg1 & seg2 (start & end)
 #' @author Leland Scantlebury
 #' @export calc_barycentric_line_coords
 #'
 #' @examples
-#' calc_barycentric_coords(x = c(523300,523400),
-#'                         y = c(4925787.45,4925802.08),
-#'                         x1 = 523232.75, y1 = 4925893,
-#'                         x2 = 523448.87, y2 = 4925906.09,
-#'                         x3 = 523353.60, y3 = 4925703.32)
+#' calc_barycentric_line_coords(lx1 = c(523300,523400),
+#'                              ly1 = c(4925787.45,4925802.08),
+#'                              lx2 = c(523305,523405),
+#'                              ly2 = c(4925790.45,4925888.08),
+#'                              x1 = 523232.75, y1 = 4925893,
+#'                              x2 = 523448.87, y2 = 4925906.09,
+#'                              x3 = 523353.60, y3 = 4925703.32)
 calc_barycentric_line_coords <- function(lx1, ly1, lx2, ly2, x1, y1, x2, y2, x3, y3) {
   #-- MATH
   p1 <- calc_barycentric_coords(lx1, ly1, x1, y1, x2, y2, x3, y3)
@@ -65,8 +70,8 @@ calc_barycentric_line_coords <- function(lx1, ly1, lx2, ly2, x1, y1, x2, y2, x3,
 #-------------------------------------------------------------------------------------------------#
 #' Polyline segment & polygon triangle geometries to barycentric coordinates
 #'
-#' @param seg_geo geometry of line object
-#' @param tri_geo geometry of polygon triangle
+#' @param segments sf line object
+#' @param triangles sf triangle polygons
 #'
 #' @return matrix of coordinates, b1, b2, b3
 #' @author Leland Scantlebury
@@ -79,38 +84,7 @@ calc_barycentric_line_coords <- function(lx1, ly1, lx2, ly2, x1, y1, x2, y2, x3,
 #'
 #' # Run function with one segment, one triangle
 #' geo_to_barycentric_coords(seg_geo = str[1,]$geometry, tri_geo = tri[120,]$geometry)
-geo_to_barycentric_coords <- function(seg_geo, tri_geo) {
-  #-- Get coords
-  tri_coords <- unique(st_coordinates(tri_geo))
-  seg_coords <- st_coordinates(seg_geo)
-
-  #-- Get barycentric coords
-  bary <- calc_barycentric_coords(seg_coords[,1], seg_coords[,2],
-                                  tri_coords[1,'X'], tri_coords[1,'Y'],
-                                  tri_coords[2,'X'], tri_coords[2,'Y'],
-                                  tri_coords[3,'X'], tri_coords[3,'Y'])
-  return(bary)
-}
-#-------------------------------------------------------------------------------------------------#
-
-#-------------------------------------------------------------------------------------------------#
-#' Polyline segment & polygon triangle geometries to barycentric coordinates
-#'
-#' @param segments sf line object
-#' @param triangles sf triangle polygons
-#'
-#' @return matrix of coordinates, b1, b2, b3
-#' @author Leland Scantlebury
-#' @export geo_to_barycentric_coords_vec
-#'
-#' @examples
-#' # Read in shapefiles
-#' str <- read_sf(system.file("extdata", "MehlandHill2010_stream.shp", package = "MFUSGPBJ"))
-#' tri <- read_sf(system.file("extdata", "720_triangles.shp", package = "MFUSGPBJ"))
-#'
-#' # Run function with one segment, one triangle
-#' geo_to_barycentric_coords(seg_geo = str[1,]$geometry, tri_geo = tri[120,]$geometry)
-geo_to_barycentric_coords_vec <- function(segments, seg_triangles) {
+geo_to_barycentric_coords <- function(segments, seg_triangles) {
 
   #-- Get coords
   tri_coords <- data.frame(st_coordinates(seg_triangles$geometry))

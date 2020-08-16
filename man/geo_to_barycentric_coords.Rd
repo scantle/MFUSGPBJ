@@ -4,12 +4,12 @@
 \alias{geo_to_barycentric_coords}
 \title{Polyline segment & polygon triangle geometries to barycentric coordinates}
 \usage{
-geo_to_barycentric_coords(seg_geo, tri_geo)
+geo_to_barycentric_coords(segments, seg_triangles)
 }
 \arguments{
-\item{seg_geo}{geometry of line object}
+\item{segments}{sf line object}
 
-\item{tri_geo}{geometry of polygon triangle}
+\item{triangles}{sf triangle polygons}
 }
 \value{
 matrix of coordinates, b1, b2, b3

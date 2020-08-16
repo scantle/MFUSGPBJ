@@ -2,16 +2,26 @@
 % Please edit documentation in R/triangle_corners.R
 \name{triangle_corners}
 \alias{triangle_corners}
-\title{Title}
+\title{Triangle polygon to triangle point sf dataframe}
 \usage{
 triangle_corners(triangles)
 }
 \arguments{
-\item{triangles}{}
+\item{triangles}{sf polygon object of triangle(s)}
 }
 \value{
-
+dataframe of three sf point geometry objects, with ID column for reference
 }
 \description{
-Title
+Triangle polygon to triangle point sf dataframe
+}
+\examples{
+# Read in shapefile
+tri <- read_sf(system.file("extdata", "720_triangles.shp", package = "MFUSGPBJ"))
+
+# Convert to corner coordinates
+tricorner <- triangle_corners(tri)
+}
+\author{
+Leland Scantlebury
 }

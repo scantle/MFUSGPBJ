@@ -30,8 +30,28 @@ line_explode <- function(polyline) {
 }
 #-------------------------------------------------------------------------------------------------#
 
-# Very briefly modificied from Spacedman's solution on StackExchange
-# See: https://gis.stackexchange.com/questions/295806/r-turn-off-automatic-ordering-of-linestrings-when-applying-sfst-intersection
+#-------------------------------------------------------------------------------------------------#
+#' Reorder line segments after intersection
+#'
+#' @param src original line sf polyline object
+#' @param parts intersected sf polygon object
+#'
+#' @return Re-ordered version of parts
+#' @export reorder_segments
+#' @details
+#' Very briefly modificied from Spacedman's solution on StackExchange:
+#' \url{https://gis.stackexchange.com/questions/295806/r-turn-off-automatic-ordering-of-linestrings-when-applying-sfst-intersection}
+#'
+#' @examples
+#' #-- Read in shapefiles
+#' str <- read_sf(system.file("extdata", "MehlandHill2010_stream.shp", package = "MFUSGPBJ"))
+#' tri <- read_sf(system.file("extdata", "720_triangles.shp", package = "MFUSGPBJ"))
+#'
+#' # Intersect
+#' tri_stream <- st_intersection(tri, str)
+#'
+#' #-- st_intersection can mess up segment order - it uses the triangle ID # to determine the order
+#' tri_stream <- reorder_segments(str, tri_stream)
 reorder_segments <- function(src, parts){
 
   joints = st_intersection(parts)

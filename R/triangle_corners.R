@@ -1,11 +1,17 @@
-#' Title
+#' Triangle polygon to triangle point sf dataframe
 #'
-#' @param triangles
+#' @param triangles sf polygon object of triangle(s)
 #'
-#' @return
+#' @return dataframe of three sf point geometry objects, with ID column for reference
+#' @author Leland Scantlebury
 #' @export triangle_corners
 #'
 #' @examples
+#' # Read in shapefile
+#' tri <- read_sf(system.file("extdata", "720_triangles.shp", package = "MFUSGPBJ"))
+#'
+#' # Convert to corner coordinates
+#' tricorner <- triangle_corners(tri)
 triangle_corners <- function(triangles){
   #-- Get coords
   tri_coords <- data.frame(st_coordinates(triangles$geometry))

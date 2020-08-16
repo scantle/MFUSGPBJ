@@ -63,83 +63,60 @@ calc_stream_voronoi_weights <- function(stream, voronoi, triangles, addTo=NULL, 
     tri_stream <- reorder_segments(stream, tri_stream)
   }
 
-  tri_stream$order <- 1:nrow(tri_stream)
+  tri_stream$Order <- 1:nrow(tri_stream)
+  #-----------------------------------------------------------------------------------------------#
+
+  #-----------------------------------------------------------------------------------------------#
+  # Extract segment triangles, keep order
+  seg_triangles <- merge(st_drop_geometry(tri_stream[,c('Order','ID')]), triangles, by = 'ID')
+  seg_triangles <- seg_triangles[order(seg_triangles$Order),]
   #-----------------------------------------------------------------------------------------------#
 
   #-----------------------------------------------------------------------------------------------#
   #-- Report
   message(paste('Calculating barycentric coords for',nrow(tri_stream),'triangle-stream segment combinations'))
-  message('May take a bit...')
+  #message('May take a bit...')
   #-----------------------------------------------------------------------------------------------#
 
   #-----------------------------------------------------------------------------------------------#
-  #-- Loop over stream triangles
-  trilist <- split(tri_stream, tri_stream$ID)
-  trilist <- lapply(trilist, function(itri) {
-    #-- Loop over stream segments in triangle
-    seglist <- split(itri, itri$ID.1)
-    seglist <- lapply(seglist, function(seg) {
 
-      #-- Get Barycentric Coords
-      bary_coords <- geo_to_barycentric_coords(seg_geo = seg$geometry, tri_geo = triangles[triangles$ID == seg$ID,]$geometry)
+  #-- Get Barycentric Coords
+  bary_coords <- geo_to_barycentric_coords(segments = tri_stream, seg_triangles = seg_triangles)
 
-      #-- Get voronoi IDs based on centers (should perfectly align to triangle sides)
-      #tri_corner <- as.data.frame(unique(st_coordinates(triangles[triangles$ID == seg$ID,])[,c('X','Y')]))
-      #tri_corner$order <- 1:3
+  #-- Zero small coordinates, re-normalize
+  bary_coords[bary_coords < cutoff_value] <- 0.0
+  bary_coords[,1:3] <- t(apply(bary_coords[,1:3], 1, function(x)(x/sum(x))))
+  bary_coords[,4:6] <- t(apply(bary_coords[,4:6], 1, function(x)(x/sum(x))))
 
-      #-- Would love a simpler way to do this
-      tri_corners <- st_as_sf(as.data.frame(st_coordinates(triangles[triangles$ID == seg$ID,])),
-                              coords = c('X','Y'), crs=st_crs(voronoi))
-      st_agr(voronoi)     <- 'constant'  # Silence useless spatial consistency error
-      st_agr(tri_corners) <- 'constant'
-      vor_overlap <- st_intersection(tri_corners, voronoi)
-      vor_overlap <- vor_overlap[order(row.names(vor_overlap)), ] # Preserves original order (hopefully!)
+  #-- Would love a simpler way to get voronoi-triangle corner mapping
+  tri_corners <- triangle_corners(seg_triangles)
+  st_agr(voronoi) <- 'constant'  # Silence useless spatial consistency error
+  for (p in 2:4) {
+    pgeo <- st_as_sf(tri_corners[,p])
+    pgeo$tID <- tri_corners$ID
+    st_agr(pgeo) <- 'constant'
+    st_crs(pgeo) <- st_crs(voronoi)
+    vor_overlap <- st_intersection(voronoi,pgeo)
+    tri_corners[paste0('Node',p-1)] <- vor_overlap$ID
+  }
 
-      #vor_overlap <- st_join(triangles[triangles$ID == seg$ID,],voronoi)
-      #tri_corner <- merge(tri_corner, vor_overlap[c('CentreX.y','CentreY.y','ID.y')],
-      #                    by.x=c('X','Y'), by.y=c('CentreX.y','CentreY.y'))
-      #tri_corner <- tri_corner[order(tri_corner$order),]  # To preserve order of corners, needed to match barycentric coords
-
-      #-- Zero small coordinates, re-normalize
-      bary_coords[bary_coords < cutoff_value] <- 0.0
-      bary_coords[1,] <- bary_coords[1,] / sum(bary_coords[1,])
-      bary_coords[2,] <- bary_coords[2,] / sum(bary_coords[2,])
-
-
-      #-- Produce final data frame (single row)
-      out <- data.frame('Order'=seg$order,
-                        'Triangle'=seg$ID,
-                        'Segment'=seg$ID.1,
-                        'Length'=as.numeric(st_length(seg)),  # Ignore "units" class, trust users
-                        'Node1'=vor_overlap[1,]$ID,
-                        'Node2'=vor_overlap[2,]$ID,
-                        'Node3'=vor_overlap[3,]$ID,
-                        'seg1.a1'=bary_coords[1,'b1'],
-                        'seg1.a2'=bary_coords[1,'b2'],
-                        'seg1.a3'=bary_coords[1,'b3'],
-                        'seg2.a1'=bary_coords[2,'b1'],
-                        'seg2.a2'=bary_coords[2,'b2'],
-                        'seg2.a3'=bary_coords[2,'b3'], row.names = NULL)
-      if (geometry) {
-        out$geometry <- seg$geometry
-      }
-      return(out)
-    })
-    #-- Combine all segments back into one dataframe
-    test <- do.call(rbind, seglist)
-    #return(do.call(rbind, seglist))
-  })
-  #-- Combine all Triangles back into one dataframe
-  weights <- do.call(rbind, trilist)
-  #-----------------------------------------------------------------------------------------------#
-
-  #-----------------------------------------------------------------------------------------------#
-  #-- Reorder
-  weights <- weights[order(weights$Order), ]
-  rownames(weights) <- weights$Order
-  #-- Drop, since order is now redundant with index
-  weights <- weights[, -1]
-  #-----------------------------------------------------------------------------------------------#
+  #-- Assemble output
+  weights <- data.frame('Order'=tri_stream$Order,
+                        'Triangle'=tri_stream$ID,
+                        'Segment'=tri_stream$ID.1,
+                        'Length'=as.numeric(st_length(tri_stream)),  # Ignore "units" class, trust users
+                        'Node1'=tri_corners$Node1,
+                        'Node2'=tri_corners$Node2,
+                        'Node3'=tri_corners$Node3,
+                        'seg1.a1'=bary_coords[,1],
+                        'seg1.a2'=bary_coords[,2],
+                        'seg1.a3'=bary_coords[,3],
+                        'seg2.a1'=bary_coords[,4],
+                        'seg2.a2'=bary_coords[,5],
+                        'seg2.a3'=bary_coords[,6], row.names = NULL)
+  if (geometry) {
+    weights$geometry <- tri_stream$geometry
+  }
 
   #-----------------------------------------------------------------------------------------------#
   #-- Handle addTo if needed
@@ -148,7 +125,7 @@ calc_stream_voronoi_weights <- function(stream, voronoi, triangles, addTo=NULL, 
     #TODO LIkely could use some error handling
   }
   #-----------------------------------------------------------------------------------------------#
-
   return(weights)
 }
+
 #-------------------------------------------------------------------------------------------------#

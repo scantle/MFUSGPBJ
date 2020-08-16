@@ -2,39 +2,47 @@
 % Please edit documentation in R/barycentric.R
 \name{calc_barycentric_line_coords}
 \alias{calc_barycentric_line_coords}
-\title{Calculate barycentric coordinates at a given point}
+\title{Calculate barycentric coordinates at given line start/end points
+Vectorized function to get barycentric coodinates for segment start/end points for all triangles}
 \usage{
 calc_barycentric_line_coords(lx1, ly1, lx2, ly2, x1, y1, x2, y2, x3, y3)
 }
 \arguments{
-\item{x1}{numeric, triangle corner one x-coordinate}
+\item{lx1}{numeric (or array), line first x-coordinate}
 
-\item{y1}{numeric, triangle corner one y-coordinate}
+\item{ly1}{numeric (or array), line first y-coordinate}
 
-\item{x2}{numeric, triangle corner two x-coordinate}
+\item{lx2}{numeric (or array), line second x-coordinate}
 
-\item{y2}{numeric, triangle corner two y-coordinate}
+\item{ly2}{numeric (or array), line second y-coordinate}
 
-\item{x3}{numeric, triangle corner three x-coordinate}
+\item{x1}{numeric (or array), triangle corner one x-coordinate}
 
-\item{y3}{numeric, triangle corner three y-coordinate}
+\item{y1}{numeric (or array), triangle corner one y-coordinate}
 
-\item{x}{numeric (or array), target x-coordinate}
+\item{x2}{numeric (or array), triangle corner two x-coordinate}
 
-\item{y}{numeric (or array), target y-coordinate}
+\item{y2}{numeric (or array), triangle corner two y-coordinate}
+
+\item{x3}{numeric (or array), triangle corner three x-coordinate}
+
+\item{y3}{numeric (or array), triangle corner three y-coordinate}
 }
 \value{
-matrix of coordinates, b1, b2, b3
+matrix of barycentric coordinates for seg1 & seg2 (start & end)
 }
 \description{
-Calculate barycentric coordinates at a given point
+Calculate barycentric coordinates at given line start/end points
+Vectorized function to get barycentric coodinates for segment start/end points for all triangles
 }
 \examples{
-calc_barycentric_coords(x = c(523300,523400),
-                        y = c(4925787.45,4925802.08),
-                        x1 = 523232.75, y1 = 4925893,
-                        x2 = 523448.87, y2 = 4925906.09,
-                        x3 = 523353.60, y3 = 4925703.32)
+calc_barycentric_line_coords(lx1 = c(523300,523400),
+                             ly1 = c(4925787.45,4925802.08),
+                             lx2 = c(523305,523405),
+                             ly2 = c(4925790.45,4925888.08),
+                             x1 = 523232.75, y1 = 4925893,
+                             x2 = 523448.87, y2 = 4925906.09,
+                             x3 = 523353.60, y3 = 4925703.32)
 }
 \author{
 Leland Scantlebury
