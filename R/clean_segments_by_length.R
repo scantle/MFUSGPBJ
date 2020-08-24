@@ -13,7 +13,7 @@
 #' @param verbose T/F if information should be relayed through messages (default: True).
 #'
 #' @return
-#' @export
+#' @export clean_segments_by_length
 #'
 #' @examples
 #' #-- Read in shapefiles
