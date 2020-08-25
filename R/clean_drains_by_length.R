@@ -32,6 +32,7 @@ clean_drains <- function(drndf, min_seg_length=1e-4, verbose=T) {
 
   if (verbose) {
     message(paste(length(dupes), 'drains are co-located in the same node'))
+    if (length(dupes) > 0) {message('Reparing...')}
   }
 
   #-- Loop over duplicates
@@ -41,26 +42,21 @@ clean_drains <- function(drndf, min_seg_length=1e-4, verbose=T) {
     isegs <- as.numeric(row.names(drndf[drndf$Node == dupnode,]))
 
     #-- Calc new elevation
-    welev1 <- as.numeric(st_length(drndf[isegs[1], 'geometry'])) * drndf[isegs[1], 'elev1']
-    welev2 <- as.numeric(st_length(drndf[isegs[2], 'geometry'])) * drndf[isegs[2], 'elev1']
-    newelev <- (welev1 + welev2) / as.numeric(sum(st_length(drndf[isegs, 'geometry'])))
+    newelev <- calc_weighted_avg(drndf[isegs,]$elev1, drndf[isegs,]$Length)
 
     #-- Combine geometries
-    newline <- st_line_merge(st_union(drndf[isegs[1], 'geometry'], drndf[isegs[2], 'geometry']))
+    #newline <- st_line_merge(st_union(drndf[isegs[1], 'geometry'], drndf[isegs[2], 'geometry']))
+    newline <- st_combine(drndf[isegs,'geometry'])
     drndf[isegs[1],]$geometry <- newline
 
     #-- Change Elev & Length
     drndf[isegs[1],'elev1'] <- newelev
-    # Check
-    drndf[isegs[1],'elev1000'] <- (drndf[isegs[1],'seg1.elev'] + drndf[isegs[2],'seg2.elev'])/2
-
     drndf[isegs[1],'Length'] <- as.numeric(st_length(drndf[isegs[1],]$geometry))
-    drndf[isegs[1],'Length1000'] <- sum(as.numeric(st_length(newline)))
 
     #-- Drop second node
     #LS Move to after all is processed to avoid issues  drndf <- drndf[row.names(drndf) != isegs[2],]
     #-- Instead, render line useless
-    drndf[isegs[2],'Node'] <- -999
+    drndf[isegs[-1],'Node'] <- -999
   }
 
   #-- Drop duplicates, identified by -999 in Node
@@ -71,6 +67,7 @@ clean_drains <- function(drndf, min_seg_length=1e-4, verbose=T) {
 
   if (verbose) {
     message(paste(length(small_segs), 'drains are shorter than the minimum length of ',min_seg_length))
+    if (length(dupes) > 0) {message('Reparing...')}
   }
 
   #-- Loop over small segments
@@ -84,9 +81,7 @@ clean_drains <- function(drndf, min_seg_length=1e-4, verbose=T) {
     }
 
     #-- Calc new elevation
-    welev1 <- as.numeric(st_length(drndf[seg, 'geometry'])) * drndf[seg, 'elev1']
-    welev2 <- as.numeric(st_length(drndf[sumrow, 'geometry'])) * drndf[sumrow, 'elev1']
-    newelev <- (welev1 + welev2) / as.numeric(sum(st_length(drndf[seg, 'geometry'])))
+    newelev <- calc_weighted_avg(drndf[c(sumrow, seg),]$elev1, drndf[c(sumrow, seg),]$Length)
 
     #-- Combine Geometries
     newline <- st_line_merge(st_union(drndf[sumrow, 'geometry'], drndf[seg, 'geometry']))
@@ -95,8 +90,6 @@ clean_drains <- function(drndf, min_seg_length=1e-4, verbose=T) {
 
     #-- Correct Elevation & Length
     drndf[sumrow,'elev1'] <- newelev
-    # Check
-    drndf[sumrow,'elev1000'] <- (drndf[sumrow,'seg1.elev'] + drndf[seg,'seg2.elev'])/2
 
     drndf[sumrow,'Length'] <- as.numeric(st_length(drndf[sumrow,]$geometry))
   }
@@ -110,4 +103,8 @@ clean_drains <- function(drndf, min_seg_length=1e-4, verbose=T) {
   }
 
   return(drndf)
+}
+
+calc_weighted_avg <- function(values, weights) {
+  return(sum(values*weights)/sum(weights))
 }
