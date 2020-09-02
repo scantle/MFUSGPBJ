@@ -67,9 +67,10 @@ write.DRNpackage <- function(drndf, filename, nSPs, IPBJCB, SPwarnings=T) {
 
       #-- Write out drain values
       write.table(format(spdrn[,c('Node',
-                           paste0('elev',sp),
-                           paste0('cond',sp),
-                           'xyz')], nsmall = 4),
+                                  paste0('elev',sp),
+                                  paste0('cond',sp),
+                                  'xyz')],
+                         nsmall=c(0,4,4,0)),
                   sep='  ',
                   file = f,
                   row.names = F,
