@@ -102,8 +102,11 @@ write.PBJpackage <- function(swdf, filename, nSPs, IPBJCB, pbjmode='DRAIN', cond
 
   #-- Check valid columns, given settings
   if(pbjmode == "HEADSPEC") {
-    if (!('Head1' %in% colnames(swdf))) {
-      stop('At a minimum, a conductance must be specified for the first stress period (column "Head1")')
+    if (!('seg1.head1' %in% colnames(swdf))) {
+      stop('At a minimum, a head must be specified for the first stress period (column "seg1.head1")')
+    }
+    if (!('seg2.head1' %in% colnames(swdf))) {
+      stop('At a minimum, a head must be specified for the first stress period (column "seg2.head1")')
     }
   } else {
     # All other modes require a conductance of some sort
@@ -116,8 +119,11 @@ write.PBJpackage <- function(swdf, filename, nSPs, IPBJCB, pbjmode='DRAIN', cond
            Please estimate using a calc_conductance_* function')
     }
     if (pbjmode == "EXTSTAGE") {
-      if (!('Stage1' %in% colnames(swdf))) {
-        stop('At a minimum, a conductance must be specified for the first stress period (column "Stage1")')
+      if (!('seg1.stage1' %in% colnames(swdf))) {
+        stop('At a minimum, a stage must be specified for the first stress period (column "seg1.stage1")')
+      }
+      if (!('seg2.stage1' %in% colnames(swdf))) {
+        stop('At a minimum, a stage must be specified for the first stress period (column "seg2.stage1")')
       }
     }
   }
