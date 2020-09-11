@@ -19,12 +19,15 @@
 #'
 #' @details
 #' Attention is required in the naming of the time-varying columns in relation to stress periods. Conductance,
-#' 'Head', and 'Stage' columns must be passed with specific stress period numbers after their name
-#' (e.g. 'Head5'). Missing stress periods (e.g. 'Stage4' followed by 'Stage6') are assumed to mean the
-#' previous stress period value should be reused.
+#' head, and stage columns must be passed with specific stress period numbers after their name
+#' (e.g. 'seg1.head2'). Missing stress periods (e.g. 'seg1.stage4' followed by 'seg1.stage6') are assumed to
+#' specify the previous stress period value should be reused.
 #'
-#' Conductances (leakance coefficents, etc) are defined at both the segment start and end (like elevations)
-#' by the columns 'seg1.cond[sp]' and'seg2.cond[sp]'.
+#' Conductances (leakance coefficents, etc), specified heads, and externals stages are all defined at both
+#' the segment start and end (like elevations) using the prefixes 'seg1' and 'seg2'. For instance, conductances
+#' (leakance, etc) should be specified by the columns 'seg1.cond[sp]' and'seg2.cond[sp]'; specified heads using
+#' the columns 'seg1.head[sp]' and'seg2.head[sp]'; and stages using the columns 'seg1.stage[sp]' and
+#' 'seg2.stage[sp]'.
 #'
 #' NAs in any time-variant column will be treated that segment is not active in the stress period. Consistency
 #' with other SP parameters is NOT be checked. When using the external head-dependent boundary option (EXTSTAGE)
@@ -150,8 +153,10 @@ write.PBJpackage <- function(swdf, filename, nSPs, IPBJCB, pbjmode='DRAIN', cond
               f, row.names = F, col.names = F, quote = F)
 
   #-- Write elevations
-  writeLines("INTERNAL  1.0  (FREE)  -1  Segment Start/End Elevations", f)
-  write.table(swdf[,c('seg1.elev','seg2.elev')], f, row.names = F, col.names = F)
+  if (pbjmode != "HEADSPEC") {
+    writeLines("INTERNAL  1.0  (FREE)  -1  Segment Start/End Elevations", f)
+    write.table(swdf[,c('seg1.elev','seg2.elev')], f, row.names = F, col.names = F)
+  }
 
   #-- Write Lengths
   if (condtype != 'CONDUCTANCE') {
@@ -169,11 +174,11 @@ write.PBJpackage <- function(swdf, filename, nSPs, IPBJCB, pbjmode='DRAIN', cond
   #-- Write time-variant parameters
   for (sp in 1:nSPs) {
     if (pbjmode == "HEADSPEC") {
-      pbj_write_sp_values(f, swdf, sp, 'Head', 'Specified Heads', SPwarnings, allowconst)
+      pbj_write_sp_values(f, swdf, sp, c('seg1.head','seg2.head'), 'Specified Heads', SPwarnings, allowconst)
     } else {
       #-- Stage
       if (pbjmode == 'EXTSTAGE') {
-        pbj_write_sp_values(f, swdf, sp, 'Stage', 'External Stage', SPwarnings, allowconst)
+        pbj_write_sp_values(f, swdf, sp, c('seg1.stage','seg2.stage'), 'External Stage', SPwarnings, allowconst)
       }
 
       #-- Conductances
