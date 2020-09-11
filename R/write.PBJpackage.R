@@ -165,7 +165,7 @@ write.PBJpackage <- function(swdf, filename, nSPs, IPBJCB, pbjmode='DRAIN', cond
   }
 
   #-- Write Lengths
-  if (condtype != 'CONDUCTANCE') {
+  if ((condtype != 'CONDUCTANCE')&(pbjmode != "HEADSPEC")) {
     writeLines("INTERNAL  1.0  (FREE)  -1  Segment Lengths", f)
     write(swdf$Length, f, ncolumns = 10)
   }
