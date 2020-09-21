@@ -28,7 +28,7 @@ clean_drains <- function(drndf, min_seg_length=1e-4, verbose=T) {
   start_rws <- nrow(drndf)
 
   #-- Find "duplicate" nodes
-  dupes <- unique(d$Node[duplicated(d$Node)])
+  dupes <- unique(drndf$Node[duplicated(drndf$Node)])
 
   if (verbose) {
     message(paste(length(dupes), 'drains are co-located in the same node'))
@@ -94,7 +94,6 @@ clean_drains <- function(drndf, min_seg_length=1e-4, verbose=T) {
     drndf[sumrow,'Length'] <- as.numeric(st_length(drndf[sumrow,]$geometry))
   }
 
-  #-- Drop small segments
   drndf <- drndf[drndf$Length > min_seg_length,]
 
   if (verbose) {
