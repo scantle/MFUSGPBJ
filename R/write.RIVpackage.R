@@ -1,15 +1,15 @@
-#' Writes Modflow-USG Drain Package
+#' Writes Modflow-USG River Package
 #'
-#' @param drndf DataFrame/Geometry of drain nodes as returned by \code{\link{calc_stream_drn}} with
-#' conductances and elevation columns required for stress periods as 'cond[sp]' and 'elev[sp]'
+#' @param rivdf DataFrame/Geometry of drain nodes as returned by \code{\link{calc_stream_drn}} with
+#' conductances and elevation columns required for stress periods as 'cond[sp]', 'elev[sp]', and 'stage[sp]'
 #' @param filename character, name/location of output file
 #' @param nSPs integer, number of stress periods in simulation
-#' @param IDRNCB integer, CBB flow flag. See details (or PBJ package manual) for more info
+#' @param IRIVCB integer, CBB flow flag. See details (or PBJ package manual) for more info
 #' @param SPwarnings T/F (optional) turn on (True) or off (False) warnings about reused or missing SP data
 #'
 #' @author Leland Scantlebury
 #' @seealso \code{\link{calc_stream_drn}} \code{\link{write.PBJpackage}}
-#' @export write.DRNpackage
+#' @export write.RIVpackage
 #'
 #' @examples
 #' #-- Read in shapefiles
@@ -20,25 +20,31 @@
 #' #-- Explode polyline
 #' stream <- line_explode(stream)
 #'
-#' #-- Create DRNDF
-#' drndf <- calc_stream_drn(stream = stream, voronoi = vor)
+#' #-- Create rivdf
+#' rivdf <- calc_stream_drn(stream = stream, voronoi = vor)
 #'
 #' #-- Add conductance
-#' drndf$cond1 <- calc_conductance_modflow(drndf, k_streambed = 1,
+#' rivdf$cond1 <- calc_conductance_modflow(rivdf, k_streambed = 1,
 #'                                         str_width = 1, thickness = 0.5)
-#' #-- Add elevation
-#' drndf$elev1 <- 90.0
+#' #-- Add river bottom elevation
+#' rivdf$elev1 <- 90.0
+#'
+#' #-- Add stage as 1 m above river bottom
+#' rivdf$stage1 <- rivdf$elev1 + 1
 #'
 #' #-- Write file
-#' write.DRNpackage(drndf, filename = paste0(tempdir(),'/straight_model.drn'), nSPs=2, IDRNCB=50)
-write.DRNpackage <- function(drndf, filename, nSPs, IDRNCB, SPwarnings=T) {
+#' write.DRNpackage(rivdf, filename = paste0(tempdir(),'/straight_model.drn'), nSPs=2, IRIVCB=50)
+write.RIVpackage <- function(rivdf, filename, nSPs, IRIVCB, SPwarnings=T) {
   #-----------------------------------------------------------------------------------------------#
-  #-- Check inputs (drndf needs nodes, elevations, and conductances)
-  if (!('elev1' %in% colnames(drndf)) & ('seg2.elev' %in% colnames(drndf))) {
+  #-- Check inputs (rivdf needs nodes, elevations, and conductances)
+  if (!('elev1' %in% colnames(rivdf)) & ('seg2.elev' %in% colnames(rivdf))) {
     stop('At a minimum, an elevation must be specified for the first stress period (column "elev1")')
   }
-  if (!('cond1' %in% colnames(drndf))) {
+  if (!('cond1' %in% colnames(rivdf))) {
     stop('At a minimum, a conductance must be specified for the first stress period (column "cond1")')
+  }
+  if (!('stage1' %in% colnames(rivdf))) {
+    stop('At a minimum, a stage must be specified for the first stress period (column "stage1")')
   }
   #-----------------------------------------------------------------------------------------------#
 
@@ -48,29 +54,30 @@ write.DRNpackage <- function(drndf, filename, nSPs, IDRNCB, SPwarnings=T) {
   f <- file(filename, "wt")
 
   #-- Write Comment Line
-  writeLines("# MODFLOW-USG Drain (DRN) package written by the MFUSGPBJ R Package", f)
+  writeLines("# MODFLOW-USG River (RIV) package written by the MFUSGPBJ R Package", f)
 
-  #-- Write Maximum Drains & IDRNCB
-  writeLines(paste(nrow(drndf), IDRNCB), f)
+  #-- Write Maximum Drains & IRIVCB
+  writeLines(paste(nrow(rivdf), IRIVCB), f)
 
   #-- SPs
   for (sp in 1:nSPs) {
     #-- Check if conductivity values exist for this SP
     target_col <- paste0('cond', sp)
-    if (target_col %in% colnames(drndf)) {
+    if (target_col %in% colnames(rivdf)) {
 
       #-- Write out drains & number of parameters
-      spdrn <- drndf[!is.na(drndf[target_col]),]
-      spdrn$xyz <- 0
-      ndrns <- nrow(spdrn)
-      writeLines(paste(ndrns, 0, '   ', 'Stress Period',sp), f)
+      spriv <- rivdf[!is.na(rivdf[target_col]),]
+      spriv$xyz <- 0
+      nriv <- nrow(spriv)
+      writeLines(paste(nriv, 0, '   ', 'Stress Period',sp), f)
 
       #-- Write out drain values
-      write.table(format(spdrn[,c('Node',
-                                  paste0('elev',sp),
+      write.table(format(spriv[,c('Node',
+                                  paste0('stage',sp),
                                   paste0('cond',sp),
+                                  paste0('elev',sp),
                                   'xyz')],
-                         nsmall=c(0,4,4,0)),
+                         nsmall=c(0,4,4,4,0)),
                   sep='  ',
                   file = f,
                   row.names = F,

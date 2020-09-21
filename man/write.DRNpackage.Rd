@@ -4,7 +4,7 @@
 \alias{write.DRNpackage}
 \title{Writes Modflow-USG Drain Package}
 \usage{
-write.DRNpackage(drndf, filename, nSPs, IPBJCB, SPwarnings = T)
+write.DRNpackage(drndf, filename, nSPs, IDRNCB, SPwarnings = T)
 }
 \arguments{
 \item{drndf}{DataFrame/Geometry of drain nodes as returned by \code{\link{calc_stream_drn}} with
@@ -14,7 +14,7 @@ conductances and elevation columns required for stress periods as 'cond[sp]' and
 
 \item{nSPs}{integer, number of stress periods in simulation}
 
-\item{IPBJCB}{integer, CBB flow flag. See details (or PBJ package manual) for more info}
+\item{IDRNCB}{integer, CBB flow flag. See details (or PBJ package manual) for more info}
 
 \item{SPwarnings}{T/F (optional) turn on (True) or off (False) warnings about reused or missing SP data}
 }
@@ -40,7 +40,7 @@ drndf$cond1 <- calc_conductance_modflow(drndf, k_streambed = 1,
 drndf$elev1 <- 90.0
 
 #-- Write file
-write.DRNpackage(drndf, filename = paste0(tempdir(),'/straight_model.drn'), nSPs=2, IPBJCB=50)
+write.DRNpackage(drndf, filename = paste0(tempdir(),'/straight_model.drn'), nSPs=2, IDRNCB=50)
 }
 \seealso{
 \code{\link{calc_stream_drn}} \code{\link{write.PBJpackage}}
