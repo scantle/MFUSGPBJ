@@ -4,7 +4,7 @@
 #' conductances and elevation columns required for stress periods as 'cond[sp]' and 'elev[sp]'
 #' @param filename character, name/location of output file
 #' @param nSPs integer, number of stress periods in simulation
-#' @param IPBJCB integer, CBB flow flag. See details (or PBJ package manual) for more info
+#' @param IDRNCB integer, CBB flow flag. See details (or PBJ package manual) for more info
 #' @param SPwarnings T/F (optional) turn on (True) or off (False) warnings about reused or missing SP data
 #'
 #' @author Leland Scantlebury
@@ -30,8 +30,8 @@
 #' drndf$elev1 <- 90.0
 #'
 #' #-- Write file
-#' write.DRNpackage(drndf, filename = paste0(tempdir(),'/straight_model.drn'), nSPs=2, IPBJCB=50)
-write.DRNpackage <- function(drndf, filename, nSPs, IPBJCB, SPwarnings=T) {
+#' write.DRNpackage(drndf, filename = paste0(tempdir(),'/straight_model.drn'), nSPs=2, IDRNCB=50)
+write.DRNpackage <- function(drndf, filename, nSPs, IDRNCB, SPwarnings=T) {
   #-----------------------------------------------------------------------------------------------#
   #-- Check inputs (drndf needs nodes, elevations, and conductances)
   if (!('elev1' %in% colnames(drndf)) & ('seg2.elev' %in% colnames(drndf))) {
@@ -50,8 +50,8 @@ write.DRNpackage <- function(drndf, filename, nSPs, IPBJCB, SPwarnings=T) {
   #-- Write Comment Line
   writeLines("# MODFLOW-USG Drain (DRN) package written by the MFUSGPBJ R Package", f)
 
-  #-- Write Maximum Drains & IPBJCB
-  writeLines(paste(nrow(drndf), IPBJCB), f)
+  #-- Write Maximum Drains & IDRNCB
+  writeLines(paste(nrow(drndf), IDRNCB), f)
 
   #-- SPs
   for (sp in 1:nSPs) {
