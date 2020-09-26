@@ -2,6 +2,8 @@
 
 export(calc_barycentric_coords)
 export(calc_barycentric_line_coords)
+export(calc_conductance_MHEq3)
+export(calc_conductance_MHEq4)
 export(calc_conductance_modflow)
 export(calc_conductance_modflow_perLen)
 export(calc_stream_drn)

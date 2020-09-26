@@ -5,17 +5,17 @@
 \title{Calculate classic MODFLOW-style stream conductance
 Conductance = length x width x streambed hydraulic conductivity / streambed thickness}
 \usage{
-calc_conductance_modflow(swdf, k_streambed, str_width, thickness)
+calc_conductance_modflow(swdf, k_str, str_width, str_thick)
 }
 \arguments{
 \item{swdf}{DataFrame/Geometry of node barycentric coordinates as returned by
 \code{\link{calc_stream_voronoi_weights}}}
 
-\item{k_streambed}{numeric, streambed hydraulic conductivity}
+\item{k_str}{numeric, streambed hydraulic conductivity}
 
 \item{str_width}{numeric, stream width}
 
-\item{stream_thick}{numeric, streambed thickness (head loss zone)}
+\item{str_thick}{numeric, streambed thickness (head loss zone)}
 }
 \value{
 numeric, conductance
@@ -38,7 +38,7 @@ swdf <- calc_stream_voronoi_weights(stream = str, voronoi = vor, triangles = tri
 swdf <- stream_elev_from_slope(swdf = swdf, slope = 0.0015, initial_elev = 50)
 
 #-- Calculate conductances
-swdf$Conductance <- calc_conductance_modflow(swdf, k_streambed = 1,
+swdf$Conductance <- calc_conductance_modflow(swdf, k_str = 1,
                                              str_width = 1, thickness = 0.5)
 }
 \author{
