@@ -2,6 +2,10 @@
 #' Convert single polyline into multipolyline segments, based on vertices
 #' Or "explode" the line, as it is commonly referred to in GIS programs
 #'
+#' Warning: This function is NOT robust. Poorly-ordered shapefiles can easily confused it!
+#' Plot the resulting object to ensure it has connected the lines properly. GIS programs
+#' (e.g., QGIS) have much more robust explode processes that will do much better job.
+#'
 #' @param polyline sf polyline object
 #'
 #' @return sf multipolyline object
@@ -18,6 +22,7 @@ line_explode <- function(polyline) {
   #-- Get points
   line_points <- st_coordinates(polyline$geometry)
   line_list <- data.frame('ID'=1:(nrow(line_points)-1), 'geometry'=NA)
+
   #-- Make lines based upon sets of points
   for (i in 1:(nrow(line_points)-1)) {
     segment <- st_sfc(st_linestring(line_points[seq(i, i+1),c('X', 'Y')]))

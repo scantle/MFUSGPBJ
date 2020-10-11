@@ -14,8 +14,9 @@ line_explode(polyline)
 sf multipolyline object
 }
 \description{
-Convert single polyline into multipolyline segments, based on vertices
-Or "explode" the line, as it is commonly referred to in GIS programs
+Warning: This function is NOT robust. Poorly-ordered shapefiles can easily confused it!
+Plot the resulting object to ensure it has connected the lines properly. GIS programs
+(e.g., QGIS) have much more robust explode processes that will do much better job.
 }
 \examples{
 #-- Read in shapefiles
