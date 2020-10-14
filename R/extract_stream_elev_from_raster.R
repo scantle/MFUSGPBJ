@@ -27,5 +27,11 @@ extract_stream_elev_from_raster <- function(swdf, dem, method='simple') {
   swdf$seg1.elev <- seg_coords$elev.1
   swdf$seg2.elev <- seg_coords$elev.2
 
+  #-- Gotta warn about NAs
+  if (nrow(swdf[is.na(swdf$seg1.elev)|is.na(swdf$seg2.elev),]) > 0) {
+    nnas <- nrow(swdf[is.na(swdf$seg1.elev)|is.na(swdf$seg2.elev),])
+    warning(paste('NAs introduced from raster elevation extraction (incomplete overlap?) NAs =', nnas))
+  }
+
   return(swdf)
 }
