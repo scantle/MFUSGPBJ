@@ -20,6 +20,8 @@
 #' zero (1e-7 by default)
 #' @param seg_min_length numeric, minimum length of segment to include in calculation (default 1e-7).
 #' Generally just to weed out numerical errors.
+#' @param keep_stream_cols character array, columns in stream segment dataframe to add to returned
+#' dataframe.
 #' @return DataFrame or sf object, if geometry = True. Each row is one segment-triangle overlap,
 #' with six barycentric weights (three for segment end), the three voronoi shape IDs (model nodes)
 #' connected by the triangle, and the segment length in the triangle.
@@ -46,7 +48,8 @@
 #'                                          addTo = swdf)
 calc_stream_voronoi_weights <- function(stream, voronoi, triangles, addTo=NULL, geometry=T,
                                         correct_seg_order=T,
-                                        cutoff_value=1e-7, seg_min_length=1e-7) {
+                                        cutoff_value=1e-7, seg_min_length=1e-7,
+                                        keep_stream_cols=NULL) {
   #-----------------------------------------------------------------------------------------------#
   #-- Get Intersections
   st_agr(triangles) <- 'constant'  # Silence useless spatial consistency error
@@ -128,6 +131,9 @@ calc_stream_voronoi_weights <- function(stream, voronoi, triangles, addTo=NULL, 
                         'seg2.a3'=bary_coords[,6], row.names = NULL)
   if (geometry) {
     weights$geometry <- tri_stream$geometry
+  }
+  if (!is.null(keep_stream_cols)) {
+    weights <- cbind(weights, st_drop_geometry(tri_stream[, keep_stream_cols]))
   }
 
   #-----------------------------------------------------------------------------------------------#

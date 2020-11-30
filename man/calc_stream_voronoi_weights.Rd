@@ -12,7 +12,8 @@ calc_stream_voronoi_weights(
   geometry = T,
   correct_seg_order = T,
   cutoff_value = 1e-07,
-  seg_min_length = 1e-07
+  seg_min_length = 1e-07,
+  keep_stream_cols = NULL
 )
 }
 \arguments{
@@ -37,6 +38,9 @@ zero (1e-7 by default)}
 
 \item{seg_min_length}{numeric, minimum length of segment to include in calculation (default 1e-7).
 Generally just to weed out numerical errors.}
+
+\item{keep_stream_cols}{character array, columns in stream segment dataframe to add to returned
+dataframe.}
 }
 \value{
 DataFrame or sf object, if geometry = True. Each row is one segment-triangle overlap,
