@@ -11,7 +11,6 @@ write.PBJpackage(
   IPBJCB,
   pbjmode = "DRAIN",
   condtype = "UNITCOND",
-  seg_sort = T,
   SPwarnings = T,
   allowconst = T
 )
@@ -36,11 +35,11 @@ One of "HEADSPEC", "DRAIN", or "EXTSTAGE". Default: 'DRAIN'}
 \item{condtype}{character, conductance type to be used. See details (or PBJ package manual) for more info
 One of "CONDUCTANCE", "UNITCOND", or "LEAKCOEF". Default: 'UNITCOND'.}
 
-\item{seg_sort}{T/F (optional) whether swdf should be sorted by segment prior to output (default: True)}
-
 \item{SPwarnings}{T/F (optional) turn on (True) or off (False) warnings about reused or missing SP data}
 
 \item{allowconst}{T/F (optional) allow SP arrays to be written using the CONSTANT flag (default: True)}
+
+\item{seg_sort}{T/F (optional) whether swdf should be sorted by segment prior to output (default: True)}
 }
 \description{
 Writes Modflow-USG Polyline Boundary Junction Package

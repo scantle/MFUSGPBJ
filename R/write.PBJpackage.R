@@ -76,7 +76,7 @@
 #' #-- Write package file
 #' write.PBJpackage(swdf, filename = paste0(tempdir(),'/model720.pbj'), nSPs=2, IPBJCB=50)
 write.PBJpackage <- function(swdf, filename, nSPs, IPBJCB, pbjmode='DRAIN', condtype='UNITCOND',
-                             seg_sort=T, SPwarnings=T, allowconst=T) {
+                             SPwarnings=T, allowconst=T) {
 
   #-----------------------------------------------------------------------------------------------#
   #-- INPUT ERROR HANDLING
@@ -131,11 +131,6 @@ write.PBJpackage <- function(swdf, filename, nSPs, IPBJCB, pbjmode='DRAIN', cond
 
   #-----------------------------------------------------------------------------------------------#
   #-- FILE WRITING
-
-  #-- Order by Segments (if asked)
-  if (seg_sort) {
-    swdf <- swdf[order(swdf$Segment),]
-  }
 
   #-- Open File
   f <- file(filename, "wt")

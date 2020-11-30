@@ -143,8 +143,12 @@ calc_stream_voronoi_weights <- function(stream, voronoi, triangles, addTo=NULL, 
 #-------------------------------------------------------------------------------------------------#
 
 point_multi_voronoi_intersect_fixer <- function(tri_corners, vor_overlap, voronoi, triangles, stream) {
+  # Create "super" unique column
+  vor_overlap$superID <- 1:nrow(vor_overlap)
+
   # Find points that came from identical point intersections
   dupes <- vor_overlap[vor_overlap$uniqueID %in% vor_overlap[duplicated(vor_overlap$uniqueID),]$uniqueID,]
+
   # Remove cells without river cells
   vor_overlap_cells <- voronoi[voronoi$ID %in% vor_overlap$ID,]
   st_agr(vor_overlap_cells) <- 'constant'
@@ -152,11 +156,11 @@ point_multi_voronoi_intersect_fixer <- function(tri_corners, vor_overlap, vorono
   #-- Test one -  Remove cells that do not overlap the triangles in question
   vor_overlap_cells <- vor_overlap_cells[sapply(st_overlaps(vor_overlap_cells,triangles[triangles$ID %in% dupes$tID,]), length) > 0 ,]
 
-
   # Remove from dupes the cells that overlap a triangle
   dupes <- dupes[!dupes$ID %in% vor_overlap_cells$ID,]
   # Now, remove dupes from vor_overlap that are also in this list
-  test <- vor_overlap[!((vor_overlap$uniqueID %in% dupes$uniqueID)&(vor_overlap$ID %in% dupes$ID)),]
+  #test <- vor_overlap[!((vor_overlap$uniqueID %in% dupes$uniqueID)&(vor_overlap$ID %in% dupes$ID)),]
+  test <- vor_overlap[!(vor_overlap$superID %in% dupes$superID),]
 
   # Did we do it??
   if (nrow(tri_corners) == nrow(test)) {
@@ -176,7 +180,8 @@ point_multi_voronoi_intersect_fixer <- function(tri_corners, vor_overlap, vorono
   # Remove from dupes the cells that contain a stream segment
   dupes <- dupes[!dupes$ID %in% vor_overlap_cells$ID,]
   # Now, remove dupes from vor_overlap that are also in this list
-  test <- vor_overlap[!((vor_overlap$uniqueID %in% dupes$uniqueID)&(vor_overlap$ID %in% dupes$ID)),]
+  #test <- vor_overlap[!((vor_overlap$uniqueID %in% dupes$uniqueID)&(vor_overlap$ID %in% dupes$ID)),]
+  test <- vor_overlap[!(vor_overlap$superID %in% dupes$superID),]
 
   # Did we do it??
   if (nrow(tri_corners) == nrow(test)) {
@@ -196,7 +201,7 @@ point_multi_voronoi_intersect_fixer <- function(tri_corners, vor_overlap, vorono
     vocs <- vor_overlap_cells[sapply(st_overlaps(vor_overlap_cells,triangles[triangles$ID==triID,]), length) > 0 ,]
     if (any(!unique(dupes[dupes$tID==triID,]$ID) %in% vocs$ID)) {
       # first test actually worked - but there were different answers for different triangles
-      res <- dupes[(dupes$tID==triID)&(dupes$ID %in% vocs$ID),]
+      res <- dupes[(dupes$tID==triID)&(!dupes$ID %in% vocs$ID),]
       return(res)
     }
     # Find out which was cell has less intersection with the triangle
@@ -207,7 +212,8 @@ point_multi_voronoi_intersect_fixer <- function(tri_corners, vor_overlap, vorono
   })
   dupes <- do.call(rbind, result)
 
-  test <- vor_overlap[!((vor_overlap$uniqueID %in% dupes$uniqueID)&(vor_overlap$ID %in% dupes$ID)),]
+  #test <- vor_overlap[!((vor_overlap$uniqueID %in% dupes$uniqueID)&(vor_overlap$ID %in% dupes$ID)),]
+  test <- vor_overlap[!(vor_overlap$superID %in% dupes$superID),]
 
   # I'm pretty sure that will do it. I suppose if ANOTHER try was needed we could just (with no tests) drop duplicates.
   if (nrow(tri_corners) == nrow(test)) {

@@ -5,7 +5,7 @@
 \title{Calculate streambed elevations given geometry & slope
 Assumes a single stream, with segments properly ordered.}
 \usage{
-stream_elev_from_slope(swdf, slope, initial_elev, order_by_index = F)
+stream_elev_from_slope(swdf, slope, initial_elev, order_by_index = F, sp = 1)
 }
 \arguments{
 \item{swdf}{DataFrame/Geometry of node barycentric coordinates as returned by
