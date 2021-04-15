@@ -18,16 +18,17 @@
 #'
 #' @examples
 #' #-- Read in shapefiles
-#' stream <- read_sf(system.file("extdata", "straight_river.shp", package = "MFUSGPBJ"))
-#' tri <- read_sf(system.file("extdata", "straight_triangles.shp", package = "MFUSGPBJ"))
-#' vor <- read_sf(system.file("extdata", "straight_voronoi.shp", package = "MFUSGPBJ"))
+#' stream <- read_sf(system.file("extdata", "straight_river.shp", package = "pbjr"))
+#' tri <- read_sf(system.file("extdata", "straight_triangles.shp", package = "pbjr"))
+#' vor <- read_sf(system.file("extdata", "straight_voronoi.shp", package = "pbjr"))
 #'
 #' #-- Explode polyline
 #' stream <- line_explode(stream)
 #'
 #' #-- Create DRNDF
 #' drndf <- calc_stream_drn(stream = stream, voronoi = vor)
-calc_stream_drn <- function(stream, voronoi, method='node', correct_seg_order=T, seg_min_length=1e-7) {
+calc_stream_drn <- function(stream, voronoi, str_id_col='ID.1', vor_id_col='ID', method='node',
+                            correct_seg_order=T, seg_min_length=1e-7, keep_stream_cols=NULL) {
 
   st_agr(voronoi) <- 'constant'  # Silence useless spatial consistency error
   st_agr(stream)  <- 'constant'
@@ -44,10 +45,13 @@ calc_stream_drn <- function(stream, voronoi, method='node', correct_seg_order=T,
     }
 
     # Coerce into small DF (to be comparable to output of calc_stream_voronoi_weights)
-    drndf <- data.frame('Node' = vor_stream$ID,
-                        'Segment' = vor_stream$ID.1,
-                        'Length' = as.numeric(st_length(vor_stream)),
-                        'geometry' = vor_stream$geometry)
+    drndf <- data.frame(Node = array(st_drop_geometry(vor_stream[,vor_id_col])),
+                        Segment = array(st_drop_geometry(vor_stream[,str_id_col])),
+                        Length = as.numeric(st_length(vor_stream)),
+                        geometry = vor_stream$geometry)
+    if (!is.null(keep_stream_cols)) {
+      drndf[,keep_stream_cols] <- st_drop_geometry(vor_stream[,keep_stream_cols])
+    }
   } else {
     stop('Unsupported or unimplemented method')
   }

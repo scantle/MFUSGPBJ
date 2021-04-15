@@ -19,8 +19,8 @@ Polyline segment & polygon triangle geometries to barycentric coordinates
 }
 \examples{
 # Read in shapefiles
-str <- read_sf(system.file("extdata", "MehlandHill2010_stream.shp", package = "MFUSGPBJ"))
-tri <- read_sf(system.file("extdata", "720_triangles.shp", package = "MFUSGPBJ"))
+str <- read_sf(system.file("extdata", "MehlandHill2010_stream.shp", package = "pbjr"))
+tri <- read_sf(system.file("extdata", "720_triangles.shp", package = "pbjr"))
 
 # Run function with one segment, one triangle
 geo_to_barycentric_coords(seg_geo = str[1,]$geometry, tri_geo = tri[120,]$geometry)

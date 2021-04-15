@@ -20,7 +20,7 @@ Plot the resulting object to ensure it has connected the lines properly. GIS pro
 }
 \examples{
 #-- Read in shapefiles
-str <- read_sf(system.file("extdata", "MehlandHill2010_stream.shp", package = "MFUSGPBJ"))
+str <- read_sf(system.file("extdata", "MehlandHill2010_stream.shp", package = "pbjr"))
 
 #-- Explode polyline
 str <- line_explode(str)

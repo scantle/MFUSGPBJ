@@ -8,7 +8,7 @@
 #'
 #' @examples
 #' # Read in shapefile
-#' tri <- read_sf(system.file("extdata", "720_triangles.shp", package = "MFUSGPBJ"))
+#' tri <- read_sf(system.file("extdata", "720_triangles.shp", package = "pbjr"))
 #'
 #' # Convert to corner coordinates
 #' tricorner <- triangle_corners(tri)

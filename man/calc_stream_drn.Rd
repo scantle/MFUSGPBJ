@@ -7,9 +7,12 @@
 calc_stream_drn(
   stream,
   voronoi,
+  str_id_col = "ID.1",
+  vor_id_col = "ID",
   method = "node",
   correct_seg_order = T,
-  seg_min_length = 1e-07
+  seg_min_length = 1e-07,
+  keep_stream_cols = NULL
 )
 }
 \arguments{
@@ -33,9 +36,9 @@ PBJ package, given the same grid and stream.
 }
 \examples{
 #-- Read in shapefiles
-stream <- read_sf(system.file("extdata", "straight_river.shp", package = "MFUSGPBJ"))
-tri <- read_sf(system.file("extdata", "straight_triangles.shp", package = "MFUSGPBJ"))
-vor <- read_sf(system.file("extdata", "straight_voronoi.shp", package = "MFUSGPBJ"))
+stream <- read_sf(system.file("extdata", "straight_river.shp", package = "pbjr"))
+tri <- read_sf(system.file("extdata", "straight_triangles.shp", package = "pbjr"))
+vor <- read_sf(system.file("extdata", "straight_voronoi.shp", package = "pbjr"))
 
 #-- Explode polyline
 stream <- line_explode(stream)

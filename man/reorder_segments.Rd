@@ -23,8 +23,8 @@ Very briefly modificied from Spacedman's solution on StackExchange:
 }
 \examples{
 #-- Read in shapefiles
-str <- read_sf(system.file("extdata", "MehlandHill2010_stream.shp", package = "MFUSGPBJ"))
-tri <- read_sf(system.file("extdata", "720_triangles.shp", package = "MFUSGPBJ"))
+str <- read_sf(system.file("extdata", "MehlandHill2010_stream.shp", package = "pbjr"))
+tri <- read_sf(system.file("extdata", "720_triangles.shp", package = "pbjr"))
 
 # Intersect
 tri_stream <- st_intersection(tri, str)

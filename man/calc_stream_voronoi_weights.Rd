@@ -59,9 +59,9 @@ The function can take a while to run
 }
 \examples{
 #-- Read in shapefiles
-str <- read_sf(system.file("extdata", "MehlandHill2010_stream.shp", package = "MFUSGPBJ"))
-tri <- read_sf(system.file("extdata", "720_triangles.shp", package = "MFUSGPBJ"))
-vor <- read_sf(system.file("extdata", "720_voronoi.shp", package = "MFUSGPBJ"))
+str <- read_sf(system.file("extdata", "MehlandHill2010_stream.shp", package = "pbjr"))
+tri <- read_sf(system.file("extdata", "720_triangles.shp", package = "pbjr"))
+vor <- read_sf(system.file("extdata", "720_voronoi.shp", package = "pbjr"))
 
 #-- Explode polyline
 str <- line_explode(str)

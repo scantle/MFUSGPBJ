@@ -10,8 +10,8 @@
 #'
 #' @examples
 #' #-- Read in shapefiles
-#' str <- read_sf(system.file("extdata", "straight_river.shp", package = "MFUSGPBJ"))
-#' vor <- read_sf(system.file("extdata", "straight_voronoi.shp", package = "MFUSGPBJ"))
+#' str <- read_sf(system.file("extdata", "straight_river.shp", package = "pbjr"))
+#' vor <- read_sf(system.file("extdata", "straight_voronoi.shp", package = "pbjr"))
 #'
 #' #-- Explode polyline
 #' str <- line_explode(str)

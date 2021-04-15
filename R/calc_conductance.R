@@ -14,9 +14,9 @@
 #'
 #' @examples
 #' #-- Read in shapefiles
-#' str <- read_sf(system.file("extdata", "MehlandHill2010_stream.shp", package = "MFUSGPBJ"))
-#' tri <- read_sf(system.file("extdata", "720_triangles.shp", package = "MFUSGPBJ"))
-#' vor <- read_sf(system.file("extdata", "720_voronoi.shp", package = "MFUSGPBJ"))
+#' str <- read_sf(system.file("extdata", "MehlandHill2010_stream.shp", package = "pbjr"))
+#' tri <- read_sf(system.file("extdata", "720_triangles.shp", package = "pbjr"))
+#' vor <- read_sf(system.file("extdata", "720_voronoi.shp", package = "pbjr"))
 #' str <- line_explode(str)
 #'
 #' #-- Calculate barycentric weight DF
@@ -47,9 +47,9 @@ calc_conductance_modflow <- function(swdf, k_str, str_width, str_thick) {
 #'
 #' @examples
 #' #-- Read in shapefiles
-#' str <- read_sf(system.file("extdata", "MehlandHill2010_stream.shp", package = "MFUSGPBJ"))
-#' tri <- read_sf(system.file("extdata", "720_triangles.shp", package = "MFUSGPBJ"))
-#' vor <- read_sf(system.file("extdata", "720_voronoi.shp", package = "MFUSGPBJ"))
+#' str <- read_sf(system.file("extdata", "MehlandHill2010_stream.shp", package = "pbjr"))
+#' tri <- read_sf(system.file("extdata", "720_triangles.shp", package = "pbjr"))
+#' vor <- read_sf(system.file("extdata", "720_voronoi.shp", package = "pbjr"))
 #' str <- line_explode(str)
 #'
 #' #-- Calculate barycentric weight DF

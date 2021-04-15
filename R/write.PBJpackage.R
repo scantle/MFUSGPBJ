@@ -57,9 +57,9 @@
 #'
 #' @examples write.PBJpackage
 #' #-- Read in shapefiles
-#' str <- read_sf(system.file("extdata", "MehlandHill2010_stream.shp", package = "MFUSGPBJ"))
-#' tri <- read_sf(system.file("extdata", "720_triangles.shp", package = "MFUSGPBJ"))
-#' vor <- read_sf(system.file("extdata", "720_voronoi.shp", package = "MFUSGPBJ"))
+#' str <- read_sf(system.file("extdata", "MehlandHill2010_stream.shp", package = "pbjr"))
+#' tri <- read_sf(system.file("extdata", "720_triangles.shp", package = "pbjr"))
+#' vor <- read_sf(system.file("extdata", "720_voronoi.shp", package = "pbjr"))
 #' str <- line_explode(str)
 #'
 #' #-- Calculate barycentric weight DF
@@ -136,7 +136,7 @@ write.PBJpackage <- function(swdf, filename, nSPs, IPBJCB, pbjmode='DRAIN', cond
   f <- file(filename, "wt")
 
   #-- Write Comment Line
-  writeLines("# Polyline Boundary Junction input file written by the MFUSGPBJ R Package", f)
+  writeLines("# Polyline Boundary Junction input file written by the pbjr R Package", f)
 
   #-- Write Number of Segments & IPBJCB
   writeLines(paste(nrow(swdf), IPBJCB), f)

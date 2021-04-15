@@ -1,4 +1,4 @@
-Package: MFUSGPBJ
+Package: pbjr
 Type: Package
 Title: Modflow-USG Polyline Boundary Junction (PBJ) R Package
 Version: 0.1.0
@@ -8,7 +8,7 @@ Description: Modflow-USG Polyline Boundary Junction (PBJ) R Package
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.1.0
+RoxygenNote: 7.1.1
 Depends:
   R (>= 3.3.0),
   sf,

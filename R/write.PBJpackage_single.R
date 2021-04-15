@@ -61,7 +61,7 @@ write.PBJpackage_single <- function(segnodedf, filename, nSPs, IPBJCB, pbjmode='
   f <- file(filename, "wt")
 
   #-- Write Comment Line
-  writeLines("# Polyline Boundary Junction input file written by the MFUSGPBJ R Package", f)
+  writeLines("# Polyline Boundary Junction input file written by the pbjr R Package", f)
 
   #-- Write Number of Segments & IPBJCB
   writeLines(paste(nrow(segnodedf), IPBJCB), f)
